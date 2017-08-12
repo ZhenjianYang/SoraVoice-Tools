@@ -1,3 +1,3 @@
 # SoraVoice-Tools
 
-Some tools for making voice patches for games *Sora/Zero/Ao no Kiseki*.
+Some tools used to make voice patches of games *Sora/Zero/Ao no Kiseki*.
