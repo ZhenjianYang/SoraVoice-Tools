@@ -47,7 +47,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemGroup>
-    <ClCompile Include="..\..\src\Common.cpp" />
+    <ClCompile Include="..\..\src\Utils.cpp" />
     <ClCompile Include="..\..\src\main_ZA_Exporter_BIN.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
