@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iomanip>
 #include <unordered_map>
-#include "Common.h"
+#include <Utils/Files.h>
 
 #define ATTR_PY ".py"
 
@@ -57,12 +57,12 @@ int main(int argc, char* argv[])
 
 	const auto vdef = GetVoiceDef(def);
 
-	Sora::MakeDirectory(dir_out);
+	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
 
 	dir_py.push_back('\\');
 	vector<string> fn_pys;
-	Sora::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
+	Utils::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
 
 	for (const auto &fn_py : fn_pys) {
 		const string name = fn_py.substr(0, fn_py.rfind(ATTR_PY));

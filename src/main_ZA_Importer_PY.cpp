@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstdarg>
 
-#include "Common.h"
+#include <Utils/Files.h>
 
 using namespace std;
 
@@ -161,14 +161,14 @@ int main(int argc, char* argv[])
 	string dir_bin_out = argv[4];
 	if(argc > 5) path_report = argv[5];
 
-	Sora::MakeDirectory(dir_py_new);
+	Utils::MakeDirectory(dir_py_new);
 	if (dir_py_new.length() > 0 && dir_py_new.back() != '\\') dir_py_new.push_back('\\');
 	if (dir_py.length() > 0 && dir_py.back() != '\\') dir_py.push_back('\\');
 	if (dir_py_out.length() > 0 && dir_py_out.back() != '\\') dir_py_out.push_back('\\');
 	if (dir_bin_out.length() > 0 && dir_bin_out.back() != '\\') dir_bin_out.push_back('\\');
 
 	vector<string> fn_pys;
-	Sora::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
+	Utils::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
 
 	for (const auto &fn_py : fn_pys) {
 		string name = fn_py.substr(0, fn_py.rfind(ATTR_PY));

@@ -47,11 +47,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemGroup>
-    <ClCompile Include="..\..\src\Utils.cpp" />
+    <ClCompile Include="..\..\src\Utils\Files.cpp" />
     <ClCompile Include="..\..\src\main_RemoveCMT_SNT.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\Utils.h" />
+    <ClInclude Include="..\..\src\Utils\Files.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,12 +1,13 @@
-#include "Common.h"
+#include <Utils/Files.h>
 
 #include <Windows.h>
 #include <direct.h> 
 
 using namespace std;
 
-void Sora::SearchFiles(const std::string & seachFileName, std::vector<std::string>& out_filesFound, bool nameOnly /* = true */)
-{
+std::vector<std::string> Utils::SearchFiles(const std::string& seachFileName, bool nameOnly /* = true */) {
+	std::vector<std::string> rst;
+
 	WIN32_FIND_DATA wfdp;
 	HANDLE hFindp = FindFirstFile(seachFileName.c_str(), &wfdp);
 	string father;
@@ -19,17 +20,24 @@ void Sora::SearchFiles(const std::string & seachFileName, std::vector<std::strin
 		{
 			if (!(wfdp.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				if(nameOnly)
-					out_filesFound.push_back(wfdp.cFileName);
+				if (nameOnly)
+					rst.push_back(wfdp.cFileName);
 				else
-					out_filesFound.push_back(father + wfdp.cFileName);
+					rst.push_back(father + wfdp.cFileName);
 			}
 		} while (FindNextFile(hFindp, &wfdp));
 		FindClose(hFindp);
 	}
+
+	return rst;
 }
 
-bool Sora::MakeDirectory(const std::string & dir)
+void Utils::SearchFiles(const std::string & seachFileName, std::vector<std::string>& out_filesFound, bool nameOnly /* = true */)
+{
+	out_filesFound = SearchFiles(seachFileName, nameOnly);
+}
+
+bool Utils::MakeDirectory(const std::string & dir)
 {
 	string tmp = dir;
 	size_t idx = 0;

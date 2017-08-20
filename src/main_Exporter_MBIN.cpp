@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <memory>
 
-#include "Common.h"
+#include <Utils/Files.h>
 #include "SoraIE.h"
 
 #define ATTR_MBIN ".mbin"
@@ -34,12 +34,12 @@ int main(int argc, char* argv[])
 	string dir_mbin = argv[iarg + 0];  while (dir_mbin.back() == '/' || dir_mbin.back() == '\\') dir_mbin.pop_back();
 	string dir_out = argc > iarg + 1 ? argv[iarg + 1] : dir_mbin + ".out";
 
-	Sora::MakeDirectory(dir_out);
+	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
 
 	dir_mbin.push_back('\\');
 	vector<string> fn_mbins;
-	Sora::SearchFiles(dir_mbin + "*" ATTR_MBIN, fn_mbins);
+	Utils::SearchFiles(dir_mbin + "*" ATTR_MBIN, fn_mbins);
 
 	ofstream ofs_rp(REP_NAME);
 	for (const auto &fn_mbin : fn_mbins) {

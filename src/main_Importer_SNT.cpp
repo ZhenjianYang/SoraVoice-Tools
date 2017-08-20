@@ -7,7 +7,7 @@
 
 #include <cstdarg>
 
-#include "Common.h"
+#include <Utils/Files.h>
 #include "Mapping.h"
 #include "SoraIE.h"
 
@@ -206,14 +206,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	Sora::MakeDirectory(dir_out);
+	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
 	if (dir_snt.length() > 0 && dir_snt.back() != '\\') dir_snt.push_back('\\');
 	if (dir_snt_exp.length() > 0 && dir_snt_exp.back() != '\\') dir_snt_exp.push_back('\\');
 	if (dir_mbin_exp.length() > 0 && dir_mbin_exp.back() != '\\') dir_mbin_exp.push_back('\\');
 
 	vector<string> fn_snts;
-	Sora::SearchFiles(dir_snt + "*" ATTR_SNT, fn_snts);
+	Utils::SearchFiles(dir_snt + "*" ATTR_SNT, fn_snts);
 
 	for (const auto &fn_snt : fn_snts) {
 		string name = fn_snt.substr(0, fn_snt.rfind(ATTR_SNT));

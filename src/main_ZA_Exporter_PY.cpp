@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "Common.h"
+#include <Utils/Files.h>
 
 #define ATTR_PY ".py"
 #define ATTR_OUT ".txt"
@@ -64,12 +64,12 @@ int main(int argc, char* argv[])
 	string dir_py = argv[1];  while (dir_py.back() == '/' || dir_py.back() == '\\') dir_py.pop_back();
 	string dir_out = argc > 2 ? argv[2] : dir_py + ".out";
 
-	Sora::MakeDirectory(dir_out);
+	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
 
 	dir_py.push_back('\\');
 	vector<string> fn_pys;
-	Sora::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
+	Utils::SearchFiles(dir_py + "*" ATTR_PY, fn_pys);
 
 	ofstream ofs_rp(REP_NAME);
 	for (const auto &fn_py : fn_pys) {

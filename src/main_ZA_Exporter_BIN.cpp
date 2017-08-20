@@ -5,7 +5,7 @@
 #include <map>
 #include <algorithm>
 
-#include "Common.h"
+#include <Utils/Files.h>
 
 #define ATTR_BIN ".bin"
 #define ATTR_OUT ".txt"
@@ -254,12 +254,12 @@ int main(int argc, char* argv[])
 		cout << "Ao no kiseki" << endl;
 	}
 
-	Sora::MakeDirectory(dir_out);
+	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
 
 	dir_bin.push_back('\\');
 	vector<string> fn_bins;
-	Sora::SearchFiles(dir_bin + "*" ATTR_BIN, fn_bins);
+	Utils::SearchFiles(dir_bin + "*" ATTR_BIN, fn_bins);
 
 	ofstream ofs_rp(REP_NAME);
 	for (const auto &fn_bin : fn_bins) {
