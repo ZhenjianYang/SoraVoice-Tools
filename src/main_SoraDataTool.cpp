@@ -65,6 +65,7 @@ bool GetDSound() {
 
 	pDSBuff->lpVtbl->Release(pDSBuff);
 	pDS->lpVtbl->Release(pDS);
+	FreeLibrary(md_dsound);
 
 	return true;
 }
@@ -91,6 +92,7 @@ bool GetDInput() {
 
 	pDID->lpVtbl->Release(pDID);
 	pDI->lpVtbl->Release(pDI);
+	FreeLibrary(md_dinput);
 
 	return true;
 }
@@ -108,6 +110,7 @@ bool GetDX9() {
 	printf("\n");
 
 	pD3D->lpVtbl->Release(pD3D);
+	FreeLibrary(md_d3d9);
 
 	return true;
 }

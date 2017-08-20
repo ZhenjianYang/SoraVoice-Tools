@@ -20,6 +20,7 @@ bool GetDX8() {
 	printf("\n");
 
 	pD3D->lpVtbl->Release(pD3D);
+	FreeLibrary(md_d3d8);
 
 	return true;
 }
