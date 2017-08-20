@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <Utils/Files.h>
-#include "SoraIE.h"
+#include <Sora/SoraIE.h>
 
 #define ATTR_MBIN ".mbin"
 #define ATTR_OUT ".txt"

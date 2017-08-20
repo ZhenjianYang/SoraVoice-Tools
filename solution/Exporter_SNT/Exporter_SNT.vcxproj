@@ -47,12 +47,12 @@
   <PropertyGroup />
   <ItemGroup>
     <ClInclude Include="..\..\src\Utils\Files.h" />
-    <ClInclude Include="..\..\src\SoraIE.h" />
+    <ClInclude Include="..\..\src\Sora\SoraIE.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Utils\Files.cpp" />
     <ClCompile Include="..\..\src\main_Exporter_SNT.cpp" />
-    <ClCompile Include="..\..\src\SoraIE.cpp" />
+    <ClCompile Include="..\..\src\Sora\SoraIE.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

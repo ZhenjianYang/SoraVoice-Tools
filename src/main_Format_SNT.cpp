@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include <Utils/Files.h>
-#include "SoraIE.h"
+#include <Sora/SoraIE.h>
 
 #define ATTR_SNT "._SN.txt"
 

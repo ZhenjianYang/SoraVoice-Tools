@@ -48,11 +48,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\Utils\Files.cpp" />
     <ClCompile Include="..\..\src\main_Exporter_MBIN.cpp" />
-    <ClCompile Include="..\..\src\SoraIE.cpp" />
+    <ClCompile Include="..\..\src\Sora\SoraIE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Utils\Files.h" />
-    <ClInclude Include="..\..\src\SoraIE.h" />
+    <ClInclude Include="..\..\src\Sora\SoraIE.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

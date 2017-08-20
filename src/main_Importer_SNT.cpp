@@ -9,7 +9,7 @@
 
 #include <Utils/Files.h>
 #include "Mapping.h"
-#include "SoraIE.h"
+#include <Sora/SoraIE.h>
 
 #define ATTR_SNT "._SN.txt"
 #define ATTR_IPT ".txt"
