@@ -10,9 +10,9 @@ namespace alg {
 		using JudgeFun01 = std::function<JudgeValueType(const nullptr_t&, const Type2&)>;
 		using JudgeFun10 = std::function<JudgeValueType(const Type1&, const nullptr_t&)>;
 
-		JudgeFun11 judgefun_11;
-		JudgeFun01 judgefun_01;
-		JudgeFun10 judgefun_10;
+		const JudgeFun11 judgefun_11;
+		const JudgeFun01 judgefun_01;
+		const JudgeFun10 judgefun_10;
 
 		StdJudge(JudgeFun11 fun11, JudgeFun01 fun01, JudgeFun10 fun10) :
 			judgefun_11(fun11), judgefun_01(fun01), judgefun_10(fun10) { }
