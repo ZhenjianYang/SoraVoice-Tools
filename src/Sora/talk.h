@@ -2,11 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 class CTalk {
 public:
 	enum class EType {
-		AnonymousTalk,
+		AnonymousTalk = 0,
 		ChrTalk,
 		NpcTalk
 	};
@@ -35,41 +36,57 @@ public:
 	const std::string& Name() const { return name; }
 	CDialogs& Dialogs() { return dialogs; }
 	const CDialogs& Dialogs() const { return dialogs; }
+	COPs& OPs() { return ops; }
+	const COPs& OPs() const { return ops; }
 
-	int LineEnd() const { return lineEnd; }
-	void SetLineEnd(int lineEnd) { this->lineEnd = lineEnd; }
-	int LineStart() const { return lineStart; }
-	void SetLineStart(int lineStart) { this->lineStart = lineStart; }
+	int PosEnd() const { return end; }
+	void SetPosEnd(int end) { this->end = end; }
+	int PosStart() const { return start; }
+	void SetPosStart(int start) { this->start = start; }
 
 	int DialogsNum() const { return dialogs.size(); }
+	CDialog& operator[] (int index) { return dialogs[index]; }
+	const CDialog& operator[] (int index) const { return dialogs[index]; }
 
 public:
-	CTalk(EType type, int lineStart = -1, int chrId = InvalidChrId)
+	CTalk(EType type, int start = -1, int chrId = InvalidChrId)
 		: type(type), chrId(chrId),
 		  dialogs({{""}}),
-		  lineStart(lineStart), lineEnd(lineStart){
+		  start(start), end(start){
 	}
 
-	bool Add(const std::string& content, int (*getChbytes)(const char*)) {
-		const char* p = content.c_str();
-		while(*p) {
-			int bytes = getChbytes(p);
+	bool Add(const std::string& content, std::function<int(const char*)>getChbytes) {
+		auto & p = content;
+
+		size_t i = 0;
+		while(i < p.length()) {
+			if (p[i] == '\t') { i++; continue; }
+
+			int bytes = getChbytes(p.c_str() + i);
 			if(bytes <= 0) return false;
 
 			bool isSymbol = false;
-			if(*p < 0x20 || *p == '#') {
-				COP op { *p, 0 };
-
-				switch(op.op) {
-				case '#':
-					while(p[bytes] >= '0' && p[bytes] <= '9') {
+			if(p[i] == '#') {
+				if (p[i + 1] == '#') {
+					bytes = p.length() - i;
+					break;
+				}
+				else {
+					COP op{ 0, 0 };
+					while (p[bytes] >= '0' && p[bytes] <= '9') {
 						op.oprnd *= 10;
 						op.oprnd += p[bytes] - '0';
 						bytes++;
 					}
-					op.op = p[bytes];
-					if(!(op.op >= 'a' && op.op <= 'z') && !(op.op >= 'A' && op.op <= 'Z')) return false;
-					break;
+					op.op = p[bytes++];
+					if (!(op.op >= 'a' && op.op <= 'z') && !(op.op >= 'A' && op.op <= 'Z')) return false;
+					ops.push_back(op);
+				}
+			}
+			else if(0 <= p[i] && p[i] < 0x20) {
+				COP op { p[i], 0 };
+
+				switch(op.op) {
 				case SCPSTR_CODE_ITEM:
 					isSymbol = true;
 					bytes += 2;
@@ -92,19 +109,20 @@ public:
 				ops.push_back(op);
 			}
 
-			AddChars(p, bytes, isSymbol);
-			p += bytes;
+			if (!isSymbol) {
+				if (_flags.newDlg) { dialogs.push_back({ "" }); _flags.newDlg = _flags.newLine = false; }
+				if (_flags.newLine) { dialogs.back().push_back(""); _flags.newLine = false; }
+			}
+
+			dialogs.back().back().append(p.substr(i, bytes));
+			i += bytes;
 		}
 		return true;
 	}
 
 private:
 	void AddChars(const char* p, int count, bool isSymbol) {
-		if(!isSymbol) {
-			if(_flags.newDlg) { dialogs.push_back({""}); _flags.newDlg = _flags.newLine = false; }
-			if(_flags.newLine) { dialogs.back().push_back(""); _flags.newLine = false; }
-		}
-		dialogs.back().back().append(p, count);
+		
 	}
 
 private:
@@ -114,8 +132,8 @@ private:
 	CDialogs dialogs;
 	COPs ops;
 
-	int lineStart;
-	int lineEnd;
+	int start;
+	int end;
 
 private:
 	struct {
