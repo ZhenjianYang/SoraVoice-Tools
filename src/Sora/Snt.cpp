@@ -114,6 +114,9 @@ static auto talkStr2SntStr(const std::string& str) {
 
 int Snt::Create(std::istream & is)
 {
+	lines.clear();
+	talks.clear();
+
 	char buff[MAXCH_ONELINE + 1];
 	constexpr int InvalidTalkId = -1;
 

@@ -74,12 +74,12 @@ public:
 				}
 				else {
 					OP op{ 0, 0 };
-					while (p[bytes] >= '0' && p[bytes] <= '9') {
+					while (p[i + bytes] >= '0' && p[i + bytes] <= '9') {
 						op.oprnd *= 10;
-						op.oprnd += p[bytes] - '0';
+						op.oprnd += p[i + bytes] - '0';
 						bytes++;
 					}
-					op.op = p[bytes++];
+					op.op = p[i + bytes++];
 					if (!(op.op >= 'a' && op.op <= 'z') && !(op.op >= 'A' && op.op <= 'Z')) return false;
 					ops.push_back(op);
 				}
