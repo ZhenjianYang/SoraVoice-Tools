@@ -60,7 +60,9 @@ int MBin::Create(const char* buff, int size, std::function<int(const char*)>getC
 		}
 		if(ip >= end) return start;
 
-		talk.Add(string(buff + ip, end - ip - 1), getChbytes);
+		if (!talk.Add(string(buff + ip, end - ip - 1), getChbytes)) {
+			return start;
+		};
 	}
 
 	return 0;

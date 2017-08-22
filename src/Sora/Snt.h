@@ -16,7 +16,6 @@ public:
 		"talk", //NpcTalk
 	};
 
-	using TalksT = std::vector<Talk>;
 	using SntLineT = struct { int lineNo; std::string content; };
 	using SntLinesT = std::vector<SntLineT>;
 

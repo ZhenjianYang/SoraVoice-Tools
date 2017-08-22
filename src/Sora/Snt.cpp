@@ -11,6 +11,7 @@ using namespace std;
 using TalkType = Talk::TalkType;
 
 static constexpr int MAXCH_ONELINE = 10000;
+static const auto& GetChCountFun = Encode::GetChCount_GBK;
 
 static auto getHexes(const std::string& str) {
 	vector<int> rst;
@@ -73,7 +74,11 @@ static auto sntStr2TalkStr(const std::string& str) {
 			i = right + 2;
 		}
 		else {
-			rst.second.push_back(str[i++]);
+			int len = GetChCountFun(str.c_str() + i);
+			while (len > 0) {
+				rst.second.push_back(str[i++]);
+				len--;
+			}
 		}
 	}
 	
@@ -102,7 +107,7 @@ static auto talkStr2SntStr(const std::string& str) {
 			rst.push_back(str[i] + '0');
 			i += 1;
 		} else {
-			int cnt = Encode::GetChCount_GBK(str.c_str() + i);
+			int cnt = GetChCountFun(str.c_str() + i);
 			while(cnt > 0) {
 				rst.push_back(str[i++]);
 				cnt--;
@@ -202,7 +207,9 @@ int Snt::Create(std::istream & is)
 			auto fixed = sntStr2TalkStr(s.substr(is, idx - is));
 			if (!fixed.first) return line_no;
 
-			talks.back().Add(fixed.second, Encode::GetChCount_GBK);
+			if (!talks.back().Add(fixed.second, GetChCountFun)) {
+				return line_no;
+			};
 			if (idx != string::npos) {
 				talks_id = InvalidTalkId;
 				is = idx + 1;

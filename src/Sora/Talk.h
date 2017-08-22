@@ -79,8 +79,16 @@ public:
 						op.oprnd += p[i + bytes] - '0';
 						bytes++;
 					}
-					op.op = p[i + bytes++];
-					if (!(op.op >= 'a' && op.op <= 'z') && !(op.op >= 'A' && op.op <= 'Z')) return false;
+					if (bytes == 1
+						|| (!(p[i + bytes] >= 'a' && p[i + bytes] <= 'z') && !(p[i + bytes] >= 'A' && p[i + bytes] <= 'Z'))) {
+						op.op = '#';
+						if (bytes == 1) {
+							op.oprnd = 0x80000000;
+						}
+					}
+					else {
+						op.op = p[i + bytes++];
+					}
 					ops.push_back(op);
 				}
 			}
@@ -105,6 +113,9 @@ public:
 				case SCPSTR_CODE_CLEAR: case SCPSTR_CODE_LINE_FEED:
 					isSymbol = true;
 					_flags.newLine = true;
+					break;
+				default:
+					isSymbol = true;
 					break;
 				}
 				ops.push_back(op);
@@ -135,3 +146,4 @@ protected:
 	} _flags { };
 };
 
+using TalksT = std::vector<Talk>;

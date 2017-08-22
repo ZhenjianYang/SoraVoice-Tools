@@ -16,9 +16,8 @@ public:
 		2, //NpcTalk
 	};
 
-	using TalksT = std::vector<Talk>;
-	using SntLineT = struct { int lineNo; std::string content; };
-	using SntLinesT = std::vector<SntLineT>;
+	using MBinLineT = struct { int lineNo; std::string content; };
+	using SntLinesT = std::vector<MBinLineT>;
 
 	TalksT& Talks() { return talks; }
 	const TalksT& Talks() const { return talks; }
