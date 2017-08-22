@@ -5,21 +5,12 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 using namespace std;
-using TalkType = CTalk::EType;
+using TalkType = Talk::TalkType;
 
 static constexpr int MAXCH_ONELINE = 10000;
-
-static const struct {
-	string str;
-	TalkType type;
-} TalkTypes[] = {
-	{"text", TalkType::AnonymousTalk},//text
-	{"say",  TalkType::ChrTalk}, //id, text
-	{"talk",  TalkType::NpcTalk} //id, name, text
-};
-static constexpr int NumTalks = std::extent_v<decltype(TalkTypes)>;
 
 static auto getHexes(const std::string& str) {
 	vector<int> rst;
@@ -55,7 +46,7 @@ static auto getHexes(const std::string& str) {
 	return rst;
 }
 
-static auto fixString(const std::string& str) {
+static auto sntStr2TalkStr(const std::string& str) {
 	std::pair<bool, string> rst{ true, ""};
 
 	size_t i = 0;
@@ -89,7 +80,39 @@ static auto fixString(const std::string& str) {
 	return rst;
 }
 
-int CSnt::Create(std::istream & is)
+static auto talkStr2SntStr(const std::string& str) {
+	string rst;
+	char buff[12];
+	size_t i = 0;
+	while (i < str.length()) {
+		if(str[i] == Talk::SCPSTR_CODE_ITEM) {
+			std::sprintf(buff, "'[%02X%02X%02X]'", str[i], str[i+1], str[i+2]);
+			rst.append(buff);
+			i += 3;
+		} else if (str[i] == Talk::SCPSTR_CODE_COLOR) {
+			std::sprintf(buff, "'[%02X%02X]'", str[i], str[i+1]);
+			rst.append(buff);
+			i += 2;
+		} else if (str[i] > 5 && str[i] < 0x20) {
+			std::sprintf(buff, "'[%02X]'", str[i]);
+			rst.append(buff);
+			i += 1;
+		} else if (str[i] >= 0 && str[i] <= 5) {
+			rst.push_back('\\');
+			rst.push_back(str[i] + '0');
+			i += 1;
+		} else {
+			int cnt = Encode::GetChCount_GBK(str.c_str() + i);
+			while(cnt > 0) {
+				rst.push_back(str[i++]);
+				cnt--;
+			}
+		}
+	}
+	return rst;
+}
+
+int Snt::Create(std::istream & is)
 {
 	char buff[MAXCH_ONELINE + 1];
 	constexpr int InvalidTalkId = -1;
@@ -103,34 +126,35 @@ int CSnt::Create(std::istream & is)
 		size_t is = 0;
 
 		if (talks_id == InvalidTalkId && (s[0] == ';' || s.find(".def") == 0)) {
-			lines.push_back(s);
+			lines.push_back({line_no, s});
 			continue;
 		}
 
 		while (is < s.length()) {
 			if (talks_id == InvalidTalkId) {
 				auto idx = string::npos;
-				for (size_t tid = 0; tid < NumTalks; tid++) {
-					if ((idx = s.find(TalkTypes[tid].str, is)) != string::npos) {
+				for (int tid = 0; tid < Talk::NumTalkTypes; tid++) {
+					if ((idx = s.find(Str_Talks[tid], is)) != string::npos) {
 						talks_id = tid;
 						name_finished = talks_id != (int)TalkType::NpcTalk;
 						text_beg = false;
 						if (idx > 0) {
-							lines.push_back(s.substr(is, idx - is));
+							lines.push_back({line_no, s.substr(is, idx - is)});
 						}
-						talks.push_back(CTalk(TalkTypes[tid].type, idx == 0 ? line_no : line_no + 1));
-						is = idx + TalkTypes[tid].str.length();
+						lines.push_back({-(int)talks.size(), string()});
+						talks.push_back(Talk(tid));
+						is = idx + std::strlen(Str_Talks[tid]);
 						break;
 					}
 				}
+				if (talks_id == InvalidTalkId) {
+					lines.push_back({line_no, s.substr(is)});
+					break;
+				}
 			}
 			if (is >= s.length()) continue;
-			if (talks_id == InvalidTalkId) {
-				lines.push_back(s.substr(is));
-				break;
-			}
 
-			if (talks_id != (int)TalkType::AnonymousTalk && talks.back().ChrId() == CTalk::InvalidChrId) {
+			if (talks_id != (int)TalkType::AnonymousTalk && talks.back().ChrId() == Talk::InvalidChrId) {
 				while (s[is] == ' ' || s[is] == '\t') ++is;
 				if (is >= s.length()) continue;
 
@@ -172,13 +196,12 @@ int CSnt::Create(std::istream & is)
 			while (s[is] == '\t') ++is;
 
 			auto idx = s.find('"', is);
-			auto fixed = fixString(s.substr(is, idx - is));
+			auto fixed = sntStr2TalkStr(s.substr(is, idx - is));
 			if (!fixed.first) return line_no;
 
 			talks.back().Add(fixed.second, Encode::GetChCount_GBK);
 			if (idx != string::npos) {
 				talks_id = InvalidTalkId;
-				talks.back().SetPosEnd(idx == s.length() ? line_no - 1 : line_no);
 				is = idx + 1;
 			}
 			else {
@@ -190,9 +213,53 @@ int CSnt::Create(std::istream & is)
 	return 0;
 }
 
-int CSnt::Create(const char * filename) {
+int Snt::Create(const std::string& filename) {
 	std::ifstream ifs(filename);
 	if (!ifs) return false;
 	return Create(ifs);
+}
+
+static void outputTalk(std::ostream& os, const Talk& talk) {
+	char buff[12];
+	os << Snt::Str_Talks[talk.Type()] << '\n';
+	if(talk.Type() != Talk::AnonymousTalk) {
+		std::sprintf(buff, "[%02X %02X]", talk.ChrId() & 0xFF, (talk.ChrId() >> 8) & 0xFF);
+		os << buff << '\n';
+	}
+	if(talk.Type() == Talk::NpcTalk) {
+		os << "\t\t\t\t'" << talk.Name() << "\"\n";
+	}
+	os << "'";
+
+	for(const auto& dlg : talk.Dialogs()) {
+		os << '\n';
+		for(const auto& line : dlg) {
+			os << "\t\t\t\t" << talkStr2SntStr(line) << '\n';
+		}
+	}
+
+	os << '"' << '\n';
+}
+
+bool Snt::WriteTo(std::ostream& os) const {
+	for(const auto& line : lines) {
+		if(line.lineNo > 0) os << line.content << '\n';
+		else outputTalk(os, talks[-line.lineNo]);
+	}
+	os << std::flush;
+
+	return true;
+}
+
+bool Snt::WriteTo(const std::string& filename) const {
+	std::ofstream ofs(filename);
+	if (!ofs) return false;
+	return WriteTo(ofs);
+}
+
+std::string Snt::ToString() const {
+	stringstream ss;
+	if(this->WriteTo(ss)) return ss.str();
+	else return "";
 }
 

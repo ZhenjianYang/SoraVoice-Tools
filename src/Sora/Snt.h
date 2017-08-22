@@ -3,24 +3,42 @@
 #include "Talk.h"
 
 #include <vector>
+#include <string>
 #include <istream>
+#include <ostream>
 
-class CSnt
+class Snt
 {
 public:
-	using CTalks = std::vector<CTalk>;
-	using CLines = std::vector<std::string>;
+	static constexpr const char* Str_Talks[] = {
+		"text", //AnonymousTalk
+		"say",  //ChrTalk
+		"talk", //NpcTalk
+	};
 
-	CTalks& Talks() { return talks; }
-	const CTalks& Talks() const { return talks; }
-	CLines& Lines() { return lines; }
-	const CLines& Lines() const { return lines; }
+	using TalksT = std::vector<Talk>;
+	using SntLineT = struct { int lineNo; std::string content; };
+	using SntLinesT = std::vector<SntLineT>;
 
-	int Create(const char* filename);
+	TalksT& Talks() { return talks; }
+	const TalksT& Talks() const { return talks; }
+	SntLinesT& Lines() { return lines; }
+	const SntLinesT& Lines() const { return lines; }
+
+	int Create(const std::string& filename);
 	int Create(std::istream& is);
 
-	CSnt() = default;
-private:
-	CTalks talks;
-	CLines lines;
+	bool WriteTo(std::ostream& os) const;
+	bool WriteTo(const std::string& filename) const;
+	std::string ToString() const;
+
+	Snt() = default;
+protected:
+	TalksT talks;
+	SntLinesT lines;
 };
+
+inline static std::ostream& operator<<(std::ostream& os, const Snt& snt) {
+	snt.WriteTo(os);
+	return os;
+}

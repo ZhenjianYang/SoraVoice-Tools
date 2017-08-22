@@ -4,22 +4,28 @@
 #include <vector>
 #include <functional>
 
-class CTalk {
+class Talk {
 public:
-	enum class EType {
+	enum TalkType {
 		AnonymousTalk = 0,
 		ChrTalk,
 		NpcTalk
 	};
+	static constexpr int NumTalkTypes = NpcTalk + 1;
+	static constexpr const char* Str_TalkTypes[] = {
+		"AnonymousTalk",
+		"ChrTalk",
+		"NpcTalk",
+	};
 
-	struct COP {
+	struct OP {
 		char op;
 		int oprnd;
 	};
-	using CLine = std::string;
-	using CDialog = std::vector<CLine>;
-	using CDialogs = std::vector<CDialog>;
-	using COPs = std::vector<COP>;
+	using LineT = std::string;
+	using DialogT = std::vector<LineT>;
+	using DialogsT = std::vector<DialogT>;
+	using OPsT = std::vector<OP>;
 
 	static constexpr int InvalidChrId = 0x80000000;
 	static constexpr char SCPSTR_CODE_ITEM = '\x1F';
@@ -28,26 +34,26 @@ public:
 	static constexpr char SCPSTR_CODE_ENTER = '\x02';
 	static constexpr char SCPSTR_CODE_CLEAR = '\x03';
 
-	EType Type() const { return type; }
+	int Type() const { return type; }
+	void SetType(int type) { this->type = type; }
 	int ChrId() const { return chrId; }
 	void SetChrId(int chrId) { this->chrId = chrId; }
 
 	std::string& Name() { return name; }
 	const std::string& Name() const { return name; }
-	CDialogs& Dialogs() { return dialogs; }
-	const CDialogs& Dialogs() const { return dialogs; }
-	COPs& OPs() { return ops; }
-	const COPs& OPs() const { return ops; }
+	DialogsT& Dialogs() { return dialogs; }
+	const DialogsT& Dialogs() const { return dialogs; }
+	OPsT& OPs() { return ops; }
+	const OPsT& OPs() const { return ops; }
 
 	int DialogsNum() const { return dialogs.size(); }
-	CDialog& operator[] (int index) { return dialogs[index]; }
-	const CDialog& operator[] (int index) const { return dialogs[index]; }
+	DialogT& operator[] (int index) { return dialogs[index]; }
+	const DialogT& operator[] (int index) const { return dialogs[index]; }
 
 public:
-	CTalk(EType type, int start = -1, int chrId = InvalidChrId)
+	Talk(int type, int chrId = InvalidChrId)
 		: type(type), chrId(chrId),
-		  dialogs({{""}}),
-		  start(start), end(start){
+		  dialogs({{""}}){
 	}
 
 	bool Add(const std::string& content, std::function<int(const char*)>getChbytes) {
@@ -67,7 +73,7 @@ public:
 					break;
 				}
 				else {
-					COP op{ 0, 0 };
+					OP op{ 0, 0 };
 					while (p[bytes] >= '0' && p[bytes] <= '9') {
 						op.oprnd *= 10;
 						op.oprnd += p[bytes] - '0';
@@ -79,7 +85,7 @@ public:
 				}
 			}
 			else if(0 <= p[i] && p[i] < 0x20) {
-				COP op { p[i], 0 };
+				OP op { p[i], 0 };
 
 				switch(op.op) {
 				case SCPSTR_CODE_ITEM:
@@ -115,14 +121,14 @@ public:
 		return true;
 	}
 
-private:
-	EType type;
+protected:
+	int type;
 	int chrId;
 	std::string name;
-	CDialogs dialogs;
-	COPs ops;
+	DialogsT dialogs;
+	OPsT ops;
 
-private:
+protected:
 	struct {
 		bool newLine;
 		bool newDlg;
