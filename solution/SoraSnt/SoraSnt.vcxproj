@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4D9491AB-DC30-40B3-A261-B669CF75C128}</ProjectGuid>
-    <RootNamespace>Exp_SntMbin</RootNamespace>
+    <RootNamespace>SoraSnt</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

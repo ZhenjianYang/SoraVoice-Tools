@@ -31,7 +31,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraDataTool", "SoraDataToo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "New", "New", "{5074FB50-0C06-440C-998F-894A3C2EE0EF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exp_SntMbin", "Exp_SntMbin\Exp_SntMbin.vcxproj", "{4D9491AB-DC30-40B3-A261-B669CF75C128}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraSnt", "SoraSnt\SoraSnt.vcxproj", "{4D9491AB-DC30-40B3-A261-B669CF75C128}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
