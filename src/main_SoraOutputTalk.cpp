@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 		cout << "Usage:\n"
 			"\t" "SoraOutputTalk [-u] dir_snt dir_mbin [dir_snt_out] [dir_mbin_out]\n"
 			"\n"
-			"    -u : set mbin's codepage to utf8\n"
+			"    -u : set mbin's codepage to utf8.(Default is Shift-JIS)\n"
 			"Default: dir_snt_out = dir_snt.out\n"
 			"         dir_mbin_out = dir_mbin.out\n"
 			<< endl;
