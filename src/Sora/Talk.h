@@ -39,11 +39,6 @@ public:
 	COPs& OPs() { return ops; }
 	const COPs& OPs() const { return ops; }
 
-	int PosEnd() const { return end; }
-	void SetPosEnd(int end) { this->end = end; }
-	int PosStart() const { return start; }
-	void SetPosStart(int start) { this->start = start; }
-
 	int DialogsNum() const { return dialogs.size(); }
 	CDialog& operator[] (int index) { return dialogs[index]; }
 	const CDialog& operator[] (int index) const { return dialogs[index]; }
@@ -121,19 +116,11 @@ public:
 	}
 
 private:
-	void AddChars(const char* p, int count, bool isSymbol) {
-		
-	}
-
-private:
 	EType type;
 	int chrId;
 	std::string name;
 	CDialogs dialogs;
 	COPs ops;
-
-	int start;
-	int end;
 
 private:
 	struct {
