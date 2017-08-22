@@ -18,10 +18,10 @@
     <ClCompile Include="..\..\src\Utils\Files.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Sora\Snt.cpp">
+    <ClCompile Include="..\..\src\main_SoraMBin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\main_SoraSnt.cpp">
+    <ClCompile Include="..\..\src\Sora\MBin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClInclude Include="..\..\src\Utils\Files.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Sora\Snt.h">
+    <ClInclude Include="..\..\src\Sora\Talk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Sora\Talk.h">
+    <ClInclude Include="..\..\src\Sora\MBin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

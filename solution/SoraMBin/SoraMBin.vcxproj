@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{4D9491AB-DC30-40B3-A261-B669CF75C128}</ProjectGuid>
-    <RootNamespace>SoraSnt</RootNamespace>
+    <ProjectGuid>{C4669BB0-E02A-44E9-9214-E0B234B83635}</ProjectGuid>
+    <RootNamespace>SoraMBin</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -47,12 +47,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemGroup>
-    <ClCompile Include="..\..\src\main_SoraSnt.cpp" />
-    <ClCompile Include="..\..\src\Sora\Snt.cpp" />
+    <ClCompile Include="..\..\src\main_SoraMBin.cpp" />
+    <ClCompile Include="..\..\src\Sora\MBin.cpp" />
     <ClCompile Include="..\..\src\Utils\Files.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\Sora\Snt.h" />
+    <ClInclude Include="..\..\src\Sora\MBin.h" />
     <ClInclude Include="..\..\src\Sora\Talk.h" />
     <ClInclude Include="..\..\src\Utils\Encode.h" />
     <ClInclude Include="..\..\src\Utils\Files.h" />
