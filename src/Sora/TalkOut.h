@@ -170,8 +170,8 @@ namespace TOut {
 		}
 
 		if (talk1.Type() == Talk::NpcTalk || talk2.Type() == Talk::NpcTalk) {
-			if (talk1.Type() != InvalidChrId) os1 << "0x" << std::hex << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
-			if (talk2.Type() != InvalidChrId) os2 << "0x" << std::hex << talk2.ChrId() << '\n'; ELSE_EMPTY_LINE(os2);
+			if (talk1.Type() == Talk::NpcTalk) os1 << talk1.Name() << '\n'; ELSE_EMPTY_LINE(os1);
+			if (talk2.Type() == Talk::NpcTalk) os2 << talk2.Name() << '\n'; ELSE_EMPTY_LINE(os2);
 		}
 
 		for (int i = 0; i < std::max(talk1.DialogsNum(), talk2.DialogsNum()); i++) {
@@ -221,8 +221,8 @@ namespace TOut {
 			}
 
 			if (talk1.Type() == Talk::NpcTalk || talk2.Type() == Talk::NpcTalk) {
-				if (talk1.Type() != InvalidChrId && dlg1.No() == 0) os1 << "0x" << std::hex << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
-				if (talk2.Type() != InvalidChrId && dlg2.No() == 0) os2 << "0x" << std::hex << talk2.ChrId() << '\n'; ELSE_EMPTY_LINE(os2);
+				if (talk1.Type() == Talk::NpcTalk) os1 << talk1.Name() << '\n'; ELSE_EMPTY_LINE(os1);
+				if (talk2.Type() == Talk::NpcTalk) os2 << talk2.Name() << '\n'; ELSE_EMPTY_LINE(os2);
 			}
 		}
 
