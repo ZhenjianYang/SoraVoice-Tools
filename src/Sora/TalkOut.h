@@ -13,14 +13,25 @@ namespace TOut {
 	using nullptr_t = decltype(nullptr);
 	static inline std::string TalkStr2OutStr(const std::string& str) {
 		std::string rst;
-		char buff[12];
-		for (char c : str) {
-			if (c >= 0x00 && c < 0x20) {
-				sprintf(buff, "\\x%02X", (int)c);
+		char buff[16];
+		size_t i = 0;
+		using byte = unsigned char;
+		while (i < str.length()) {
+			if(str[i] == OP::SCPSTR_CODE_ITEM) {
+				std::sprintf(buff, "\\x%02X\\x%02X\\x%02X", (byte)str[i], (byte)str[i+1], (byte)str[i+2]);
 				rst.append(buff);
-			}
-			else {
-				rst.push_back(c);
+				i += 3;
+			} else if (str[i] == OP::SCPSTR_CODE_COLOR) {
+				std::sprintf(buff, "\\x%02X\\x%02X", (byte)str[i], (byte)str[i+1]);
+				rst.append(buff);
+				i += 2;
+			} else if (str[i] >= 0 && str[i] < 0x20) {
+				std::sprintf(buff, "\\x%02X", (byte)str[i]);
+				rst.append(buff);
+				i += 1;
+			} else  {
+				rst.push_back(str[i]);
+				i += 1;
 			}
 		}
 		return rst;
@@ -37,8 +48,10 @@ namespace TOut {
 				{
 				case 'F':
 					return a.oprnd == b.oprnd ? 15 : -15;
-				case '\x2':
+				case OP::SCPSTR_CODE_ENTER:
 					return a.oprnd == b.oprnd ? 10 : -10;
+				case OP::SCPSTR_CODE_COLOR:
+					return a.oprnd == b.oprnd ? 20 : -20;
 				case 'W':case 'A':
 					return a.oprnd == b.oprnd ? 8 : 4;
 				default:
@@ -49,7 +62,8 @@ namespace TOut {
 		JudgeVT operator()(const OP& a, const nullptr_t&) const {
 			switch(a.op) {
 			case 'F': return -10;
-			case '\x2' : return -30;
+			case OP::SCPSTR_CODE_ENTER : return -20;
+			case OP::SCPSTR_CODE_COLOR : return -30;
 			case 'S': return -5;
 			default : return 0;
 			}
