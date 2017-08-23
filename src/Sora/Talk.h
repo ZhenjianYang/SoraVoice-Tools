@@ -16,7 +16,7 @@ struct OP {
 	static constexpr char SCPSTR_CODE_CLEAR = '\x03';
 
 	using IgnoreListT = std::unordered_set<char>;
-	static constexpr char Dft_Ignore_List[] = { '\x05', 'J', 'V', 'v', 'B' };
+	static constexpr char Dft_Ignore_List[] = { '\x05', 'J', 'V', 'v', 'B', 'R', 'I' };
 };
 
 class Talk;
