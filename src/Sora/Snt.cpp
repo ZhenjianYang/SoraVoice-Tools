@@ -8,7 +8,6 @@
 #include <cstring>
 
 using namespace std;
-using TalkType = Talk::TalkType;
 
 static constexpr int MAXCH_ONELINE = 10000;
 static const auto& GetChCountFun = Encode::GetChCount_GBK;
@@ -90,11 +89,11 @@ static auto talkStr2SntStr(const std::string& str) {
 	char buff[12];
 	size_t i = 0;
 	while (i < str.length()) {
-		if(str[i] == Talk::SCPSTR_CODE_ITEM) {
+		if(str[i] == OP::SCPSTR_CODE_ITEM) {
 			std::sprintf(buff, "'[%02X%02X%02X]'", str[i], str[i+1], str[i+2]);
 			rst.append(buff);
 			i += 3;
-		} else if (str[i] == Talk::SCPSTR_CODE_COLOR) {
+		} else if (str[i] == OP::SCPSTR_CODE_COLOR) {
 			std::sprintf(buff, "'[%02X%02X]'", str[i], str[i+1]);
 			rst.append(buff);
 			i += 2;
@@ -121,6 +120,7 @@ int Snt::Create(std::istream & is)
 {
 	lines.clear();
 	talks.clear();
+	pDialogs.clear();
 
 	char buff[MAXCH_ONELINE + 1];
 	constexpr int InvalidTalkId = -1;
@@ -144,7 +144,7 @@ int Snt::Create(std::istream & is)
 				for (int tid = 0; tid < Talk::NumTalkTypes; tid++) {
 					if ((idx = s.find(Str_Talks[tid], is)) != string::npos) {
 						talks_id = tid;
-						name_finished = talks_id != (int)TalkType::NpcTalk;
+						name_finished = talks_id != (int)Talk::NpcTalk;
 						text_beg = false;
 						if (idx > 0) {
 							lines.push_back({line_no, s.substr(is, idx - is)});
@@ -162,7 +162,7 @@ int Snt::Create(std::istream & is)
 			}
 			if (is >= s.length()) continue;
 
-			if (talks_id != (int)TalkType::AnonymousTalk && talks.back().ChrId() == Talk::InvalidChrId) {
+			if (talks_id != (int)Talk::AnonymousTalk && talks.back().ChrId() == Talk::InvalidChrId) {
 				while (s[is] == ' ' || s[is] == '\t') ++is;
 				if (is >= s.length()) continue;
 
@@ -178,7 +178,7 @@ int Snt::Create(std::istream & is)
 				is = right + 1;
 			}
 
-			if (talks_id == (int)TalkType::NpcTalk && !name_finished) {
+			if (talks_id == (int)Talk::NpcTalk && !name_finished) {
 				while (s[is] == ' ' || s[is] == '\t') ++is;
 				if (is >= s.length()) continue;
 
@@ -220,6 +220,12 @@ int Snt::Create(std::istream & is)
 		}//while (i < s.length())
 	}//for line_no
 
+	for(auto& talk : this->talks) {
+		for(auto& dlg : talk.Dialogs()) {
+			pDialogs.push_back(&dlg);
+		}
+	}
+
 	return 0;
 }
 
@@ -243,7 +249,7 @@ static void outputTalk(std::ostream& os, const Talk& talk) {
 
 	for(const auto& dlg : talk.Dialogs()) {
 		os << '\n';
-		for(const auto& line : dlg) {
+		for(const auto& line : dlg.Lines()) {
 			os << "\t\t\t\t" << talkStr2SntStr(line) << '\n';
 		}
 	}

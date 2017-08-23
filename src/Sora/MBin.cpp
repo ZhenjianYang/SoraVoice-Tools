@@ -15,6 +15,9 @@ constexpr int MAX_TALKS_IN_MBIN = 5000;
 #define GET_U16(ptr) *(const unsigned short*)(ptr)
 
 int MBin::Create(const char* buff, int size, std::function<int(const char*)>getChbytes) {
+	talks.clear();
+	pDialogs.clear();
+
 	int ip = 0;
 
 	int num = GET_INT(buff);
@@ -63,6 +66,12 @@ int MBin::Create(const char* buff, int size, std::function<int(const char*)>getC
 		if (!talk.Add(string(buff + ip, end - ip - 1), getChbytes)) {
 			return start;
 		};
+	}
+
+	for(auto& talk : this->talks) {
+		for(auto& dlg : talk.Dialogs()) {
+			pDialogs.push_back(&dlg);
+		}
 	}
 
 	return 0;

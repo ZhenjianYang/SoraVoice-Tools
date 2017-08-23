@@ -75,17 +75,29 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 
-		auto mtch_rst = TOut::GetMatchedTalks(snt.Talks(), mbin.Talks());
+		if(snt.Talks().empty() || mbin.Talks().empty()) {
+			cout << "No talks, Skip." << endl;
+			continue;
+		}
 
 		ofstream ofs_snt_out(dir_snt_out + name + ".txt");
 		ofstream ofs_msg_out(dir_msg_out + name + ".txt");
 
+		auto mtch_rst = TOut::GetMatchedDialogs(snt.PtrDialogs(), mbin.PtrDialogs());
 		for (const auto& pit : mtch_rst.second) {
-			const auto& t_snt = pit.first != snt.Talks().end() ? *pit.first : TOut::EmptyTalk;
-			const auto& t_mst = pit.second != mbin.Talks().end() ? *pit.second : TOut::EmptyTalk;
+			const auto& t_snt = pit.first != snt.PtrDialogs().end() ? *pit.first : nullptr;
+			const auto& t_mst = pit.second != mbin.PtrDialogs().end() ? *pit.second : nullptr;
 
-			TOut::OutputTwoTalks(ofs_snt_out, t_snt, ofs_msg_out, t_mst);
+			TOut::OutputTwoPtrDialog(ofs_snt_out, t_snt, ofs_msg_out, t_mst);
 		}
+
+//		auto mtch_rst = TOut::GetMatchedTalks(snt.Talks(), mbin.Talks());
+//		for (const auto& pit : mtch_rst.second) {
+//			const auto& t_snt = pit.first != snt.Talks().end() ? *pit.first : TOut::EmptyTalk;
+//			const auto& t_mst = pit.second != mbin.Talks().end() ? *pit.second : TOut::EmptyTalk;
+//
+//			TOut::OutputTwoTalks(ofs_snt_out, t_snt, ofs_msg_out, t_mst);
+//		}
 
 		ofs_snt_out.close();
 		ofs_msg_out.close();

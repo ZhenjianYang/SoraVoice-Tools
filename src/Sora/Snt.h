@@ -21,6 +21,8 @@ public:
 
 	TalksT& Talks() { return talks; }
 	const TalksT& Talks() const { return talks; }
+	PtrDialogList& PtrDialogs() { return pDialogs; }
+	const PtrDialogList& PtrDialogs() const { return pDialogs; }
 	SntLinesT& Lines() { return lines; }
 	const SntLinesT& Lines() const { return lines; }
 
@@ -35,6 +37,8 @@ public:
 protected:
 	TalksT talks;
 	SntLinesT lines;
+
+	PtrDialogList pDialogs;
 };
 
 inline static std::ostream& operator<<(std::ostream& os, const Snt& snt) {

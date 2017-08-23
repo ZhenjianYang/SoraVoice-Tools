@@ -21,6 +21,8 @@ public:
 
 	TalksT& Talks() { return talks; }
 	const TalksT& Talks() const { return talks; }
+	PtrDialogList& PtrDialogs() { return pDialogs; }
+	const PtrDialogList& PtrDialogs() const { return pDialogs; }
 
 	int Create(const std::string& filename, std::function<int(const char*)>getChbytes);
 	int Create(std::istream& is, int size, std::function<int(const char*)>getChbytes);
@@ -29,4 +31,5 @@ public:
 	MBin() = default;
 protected:
 	TalksT talks;
+	PtrDialogList pDialogs;
 };
