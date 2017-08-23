@@ -1,42 +1,40 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <string>
+#include <unordered_set>
 
 #include <Sora/Snt.h>
+#include <Sora/TalkOut.h>
 #include <Utils/Files.h>
+#include <Utils/Encode.h>
 
 #define ATTR_SNT "._SN.txt"
 
 using namespace std;
 
-string fix(const string& str) {
-	string rst;
-	char buff[12];
-	for (char c : str) {
-		if (c < 0x20 && c >= 0x00) {
-			sprintf(buff, "\\x%02X", (int)c);
-			rst.append(buff);
+int main(int argc, char* argv[]) {
+	unordered_set<char> switches;
+	vector<string> params;
+
+	for (int i = 1; i < argc; i++) {
+		if (argv[i][0] == '-') {
+			for (int j = 1; argv[i][j]; j++) switches.insert(argv[i][j]);
 		}
 		else {
-			rst.push_back(c);
+			params.push_back(argv[i]);
 		}
 	}
-	return rst;
-}
-
-int main(int argc, char* argv[])
-{
-	if (argc <= 1) {
-		cout << "Usage:\n"
-			"\t" "RemoveCMT_SNT dir_snt [dir_out]\n"
+	if (params.size() < 1) {
+		std::cout << "Usage:\n"
+			"\t" "SoraSnt dir_snt [dir_snt_out]\n"
 			"\n"
-			"Default: dir_out = dir_snt.out"
+			"Default: dir_snt_out = dir_snt.out\n"
 			<< endl;
 		return 0;
 	}
 
-	string dir_snt = argv[1];  while (dir_snt.back() == '/' || dir_snt.back() == '\\') dir_snt.pop_back();
-	string dir_out = argc > 2 ? argv[2] : dir_snt + ".out";
+	string dir_snt = params[0];  while (dir_snt.back() == '/' || dir_snt.back() == '\\') dir_snt.pop_back();
+	string dir_out = params.size() >= 2 ? params[1] : dir_snt + ".out";
 
 	Utils::MakeDirectory(dir_out);
 	if (dir_out.length() > 0 && dir_out.back() != '\\') dir_out.push_back('\\');
@@ -46,21 +44,25 @@ int main(int argc, char* argv[])
 	Utils::SearchFiles(dir_snt + "*" ATTR_SNT, fn_snts);
 
 	for (const auto &fn_snt : fn_snts) {
-		const string name = fn_snt.substr(0, fn_snt.rfind(ATTR_SNT));
+		const string name = fn_snt.substr(0, fn_snt.find('.'));
 		cout << "Working with " << fn_snt << "..." << flush;
 
 		Snt snt;
-		auto rst = snt.Create((dir_snt + fn_snt).c_str());
+		auto rst = snt.Create(dir_snt + fn_snt);
 		if (rst) {
-			cout << "Error at Line:" << rst << endl;
+			std::cout << "Error with mbin file, Offset: 0x" << hex << rst << endl;
+			system("pause");
 			continue;
 		}
 
-		ofstream ofs(dir_out + fn_snt);
+		ofstream ofs(dir_out + name + ".txt");
 
-		ofs << snt << endl;
-
+		for (const auto& talk : snt.Talks()) {
+			TOut::OutputTalk(ofs, talk);
+		}
+		ofs << endl;
 		ofs.close();
+
 		cout << endl;
 	}
 

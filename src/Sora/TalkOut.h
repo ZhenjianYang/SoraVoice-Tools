@@ -236,4 +236,25 @@ namespace TOut {
 			os2 << TOut::TalkStr2OutStr(line2) << '\n';
 		}
 	}
+
+	static inline void OutputTalk(std::ostream& os, const Talk& talk) {
+		os << '\n';
+		os << ";----------------------------------------------------------------------------------\n";
+		os << ";----------------------------------------------------------------------------------\n";
+		os << '\n';
+
+		if (talk.Type() != InvalidTalkType)os << Talk::Str_TalkTypes[talk.Type()] << " #"
+			<< std::dec << talk.No() << '\n';
+		else os << ";INVALID_TALK\n";
+
+		if (talk.ChrId() != InvalidChrId) os << "0x" << std::hex << talk.ChrId() << '\n';
+		if (talk.Type() == Talk::NpcTalk) os << talk.Name() << '\n';
+
+		for (const auto& dlg : talk.Dialogs()) {
+			os << '\n';
+			for (const auto& line : dlg.Lines()) {
+				os << TOut::TalkStr2OutStr(line) << '\n';
+			}
+		}
+	}
 }
