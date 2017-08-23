@@ -73,6 +73,7 @@ public:
 	using DialogsT = std::vector<Dialog>;
 	static constexpr int InvalidChrId = 0x80000000;
 
+	int No() const { return no; }
 	int Type() const { return type; }
 	void SetType(int type) { this->type = type; }
 	int ChrId() const { return chrId; }
@@ -90,9 +91,9 @@ public:
 	const Dialog& operator[] (int index) const { return dialogs[index]; }
 
 public:
-	Talk(int type, int chrId = InvalidChrId)
-		: type(type), chrId(chrId),
-		  dialogs({{*this, 0, {""}}}){
+	Talk(int no, int type, int chrId = InvalidChrId)
+		: no(no), type(type), chrId(chrId),
+		  dialogs({{*this, 0, {""}}}) {
 	}
 
 	bool Add(const std::string& content, std::function<int(const char*)>getChbytes,
@@ -180,12 +181,14 @@ public:
 	}
 public:
 	Talk(const Talk& _Other)
-		: type(_Other.type), chrId(_Other.chrId), name(_Other.name), dialogs(_Other.dialogs), _flags(_Other._flags) {
+		: no(_Other.no), type(_Other.type), chrId(_Other.chrId),
+		  name(_Other.name), dialogs(_Other.dialogs), _flags(_Other._flags) {
 		for(auto& dlg : this->dialogs) {
 			dlg.parent = this;
 		}
 	}
 	Talk& operator=(const Talk& _Other) {
+		this->no = _Other.no;
 		this->type = _Other.type;
 		this->chrId = _Other.chrId;
 		this->name = _Other.name;
@@ -197,13 +200,14 @@ public:
 		return *this;
 	}
 	Talk(Talk&& _Right)
-		: type(_Right.type), chrId(_Right.chrId), name(std::move(_Right.name)),
-		dialogs(std::move(_Right.dialogs)), _flags(_Right._flags) {
+		: no(_Right.no), type(_Right.type), chrId(_Right.chrId),
+		  name(std::move(_Right.name)), dialogs(std::move(_Right.dialogs)), _flags(_Right._flags) {
 		for(auto& dlg : this->dialogs) {
 			dlg.parent = this;
 		}
 	}
 	Talk& operator=(Talk&& _Right) {
+		this->no = _Right.no;
 		this->type = _Right.type;
 		this->chrId = _Right.chrId;
 		this->name = std::move(_Right.name);
@@ -216,6 +220,7 @@ public:
 	}
 
 protected:
+	int no;
 	int type;
 	int chrId;
 	std::string name;

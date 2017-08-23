@@ -49,7 +49,9 @@ namespace TOut {
 				case 'F':
 					return a.oprnd == b.oprnd ? 15 : -15;
 				case OP::SCPSTR_CODE_ENTER:
-					return a.oprnd == b.oprnd ? 10 : -10;
+					return 10;
+				case OP::SCPSTR_CODE_CLEAR:
+					return 15;
 				case OP::SCPSTR_CODE_COLOR:
 					return a.oprnd == b.oprnd ? 20 : -20;
 				case 'W':case 'A':
@@ -65,7 +67,7 @@ namespace TOut {
 			case OP::SCPSTR_CODE_ENTER : return -20;
 			case OP::SCPSTR_CODE_COLOR : return -30;
 			case 'S': return -5;
-			default : return 0;
+			default : return -3;
 			}
 		}
 		JudgeVT operator()(const nullptr_t&, const OP& b) const {
@@ -78,9 +80,16 @@ namespace TOut {
 	public:
 		JudgeVT operator()(const Dialog& a, const Dialog& b) const {
 			JudgeVT rst = 0;
-			if (&a.Parent() == &b.Parent()) {
-				rst += a.No() == b.No() ? 20 : 10;
+			if (a.Parent().Type() == b.Parent().Type()) {
+				rst += 5;
 			}
+			if (a.Parent().ChrId() == b.Parent().ChrId()) {
+				rst += 10;
+			}
+			if (a.No() == b.No()) {
+				rst += 2;
+			}
+
 			rst += alg::seq_align_value(a.Ops().begin(), a.Ops().end(), b.Ops().begin(), b.Ops().end(), JudgeOP);
 			return rst;
 		}
@@ -136,7 +145,7 @@ namespace TOut {
 
 	static constexpr int InvalidTalkType = Talk::InvalidTalk;
 	static constexpr int InvalidChrId = Talk::InvalidChrId;
-	static const Talk EmptyTalk(Talk::InvalidTalk);
+	static const Talk EmptyTalk(-1, Talk::InvalidTalk);
 	static const Dialog EmptyDialog(const_cast<Talk&>(EmptyTalk), -1, {";INVALID_DIALOG"});
 	static const std::string EmptyLine;
 #define ELSE_EMPTY_LINE(output) else output << '\n'
@@ -148,8 +157,12 @@ namespace TOut {
 		os1 << ";----------------------------------------------------------------------------------\n";
 		os2 << ";----------------------------------------------------------------------------------\n";
 
-		if (talk1.Type() != InvalidTalkType) os1 << Talk::Str_TalkTypes[talk1.Type()] << '\n'; else os1 << ";INVALID_TALK\n";
-		if (talk2.Type() != InvalidTalkType) os2 << Talk::Str_TalkTypes[talk2.Type()] << '\n'; else os2 << ";INVALID_TALK\n";
+		if (talk1.Type() != InvalidTalkType)os1 << Talk::Str_TalkTypes[talk1.Type()] << " #"
+				<< std::dec << talk1.No() << '\n';
+		else os1 << ";INVALID_TALK\n";
+		if (talk2.Type() != InvalidTalkType) os2 << Talk::Str_TalkTypes[talk2.Type()] << " #"
+				<< std::dec << talk2.No() << '\n';
+		else os2 << ";INVALID_TALK\n";
 
 		if (talk1.ChrId() != InvalidChrId || talk2.ChrId() != InvalidChrId) {
 			if (talk1.ChrId() != InvalidChrId) os1 << "0x" << std::hex << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
@@ -193,13 +206,13 @@ namespace TOut {
 				os1 << ";----------------------------------------------------------------------------------\n"
 					   ";----------------------------------------------------------------------------------\n"
 					   "\n"
-					<< Talk::Str_TalkTypes[talk1.Type()] << '\n';
+					<< Talk::Str_TalkTypes[talk1.Type()] << " #" << std::dec << talk1.No()  << '\n';
 			} else os1 << "\n\n\n\n";
 			if (talk2.Type() != InvalidTalkType && dlg2.No() == 0) {
 				os2 << ";----------------------------------------------------------------------------------\n"
 					   ";----------------------------------------------------------------------------------\n"
 					   "\n"
-					<< Talk::Str_TalkTypes[talk2.Type()] << '\n';
+					<< Talk::Str_TalkTypes[talk2.Type()] << " #" << std::dec << talk2.No()  << '\n';
 			} else os2 << "\n\n\n\n";
 
 			if (talk1.ChrId() != InvalidChrId || talk2.ChrId() != InvalidChrId) {

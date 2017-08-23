@@ -54,7 +54,7 @@ int MBin::Create(const char* buff, int size, std::function<int(const char*)>getC
 
 		ip = start + 1;
 		int chrId = GET_U16(buff + ip); ip += 2;
-		talks.push_back(Talk(type, chrId));
+		talks.push_back(Talk(i, type, chrId));
 		auto& talk = talks.back();
 
 		if(type == Talk::NpcTalk) {

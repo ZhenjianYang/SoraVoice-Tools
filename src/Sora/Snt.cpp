@@ -123,11 +123,12 @@ int Snt::Create(std::istream & is)
 	pDialogs.clear();
 
 	char buff[MAXCH_ONELINE + 1];
-	constexpr int InvalidTalkId = -1;
+	constexpr int InvalidTalkId = Talk::InvalidTalk;
 
 	bool name_finished = false;
 	bool text_beg = false;
 	int talks_id = InvalidTalkId;
+	int no = 0;
 	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
 
 		string s(line_no == 0 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
@@ -150,7 +151,7 @@ int Snt::Create(std::istream & is)
 							lines.push_back({line_no, s.substr(is, idx - is)});
 						}
 						lines.push_back({-(int)talks.size(), string()});
-						talks.push_back(Talk(tid));
+						talks.push_back(Talk(no++, tid));
 						is = idx + std::strlen(Str_Talks[tid]);
 						break;
 					}
