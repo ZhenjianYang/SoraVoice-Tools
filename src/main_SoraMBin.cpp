@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
 			for(const auto& dlg : talk.Dialogs()) {
 				ofs << '\n';
-				for(const auto& line : dlg) {
+				for(const auto& line : dlg.Lines()) {
 					ofs << fix(line) << '\n';
 				}
 			}
