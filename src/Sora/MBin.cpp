@@ -14,7 +14,44 @@ constexpr int MAX_TALKS_IN_MBIN = 5000;
 #define GET_INT(ptr) *(const int*)(ptr)
 #define GET_U16(ptr) *(const unsigned short*)(ptr)
 
-int MBin::Create(const char* buff, int size, std::function<int(const char*)>getChbytes) {
+inline static std::string createErrMsg(int ret) {
+	if(ret == 0) return "";
+
+	stringstream ss;
+	ss << "Error with mbin file, Offset: 0x" << hex << ret;
+	return ss.str();
+}
+
+MBin::MBin(const std::string& filename, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+	std::ifstream ifs(filename, ios::binary);
+	if (!ifs) {
+		this->err = "Open file failed.";
+		return;
+	}
+
+	ifs.seekg(0, ios::end);
+	int size = (int)ifs.tellg();
+	ifs.seekg(0, ios::beg);
+
+	std::unique_ptr<char[]> buff = std::make_unique<char[]>(size);
+	ifs.read(buff.get(), size);
+
+	this->err = createErrMsg(Create(buff.get(), size));
+}
+MBin::MBin(std::istream& is, int size, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+	std::unique_ptr<char[]> buff = std::make_unique<char[]>(size);
+	is.read(buff.get(), size);
+
+	this->err = createErrMsg(Create(buff.get(), size));
+}
+MBin::MBin(const char* buff, int size, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+	this->err = createErrMsg(Create(buff, size));
+}
+
+int MBin::Create(const char* buff, int size) {
+	std::function<int(const char*)> getChbytes = this->encode == Encode::SJIS ?
+			::Encode::GetChCount_SJis: ::Encode::GetChCount_Utf8;
+
 	talks.clear();
 	pDialogs.clear();
 
@@ -75,23 +112,5 @@ int MBin::Create(const char* buff, int size, std::function<int(const char*)>getC
 	}
 
 	return 0;
-}
-
-int MBin::Create(std::istream & is, int size, std::function<int(const char*)>getChbytes)
-{
-	std::unique_ptr<char[]> buff = std::make_unique<char[]>(size);
-	is.read(buff.get(), size);
-	return Create(buff.get(), size, getChbytes);
-}
-
-int MBin::Create(const std::string& filename, std::function<int(const char*)>getChbytes) {
-	std::ifstream ifs(filename, ios::binary);
-	if (!ifs) return false;
-
-	ifs.seekg(0, ios::end);
-	int size = (int)ifs.tellg();
-	ifs.seekg(0, ios::beg);
-
-	return Create(ifs, size, getChbytes);
 }
 

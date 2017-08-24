@@ -7,7 +7,7 @@
 #include <string>
 #include <istream>
 
-class MBin
+class MBin : public TalksFile
 {
 public:
 	static constexpr const int Id_Talks[] = {
@@ -15,21 +15,32 @@ public:
 		1, //ChrTalk
 		2, //NpcTalk
 	};
+	enum class Encode {
+		SJIS,
+		UTF8
+	};
 
-	using MBinLineT = struct { int lineNo; std::string content; };
-	using SntLinesT = std::vector<MBinLineT>;
+	Encode GetEncode() const { return encode; }
 
-	TalksT& Talks() { return talks; }
-	const TalksT& Talks() const { return talks; }
-	PtrDialogList& PtrDialogs() { return pDialogs; }
-	const PtrDialogList& PtrDialogs() const { return pDialogs; }
+	MBin(const std::string& filename, Encode encode = Encode::SJIS);
+	MBin(std::istream& is, int size, Encode encode = Encode::SJIS);
+	MBin(const char* buff, int size, Encode encode = Encode::SJIS);
 
-	int Create(const std::string& filename, std::function<int(const char*)>getChbytes);
-	int Create(std::istream& is, int size, std::function<int(const char*)>getChbytes);
-	int Create(const char* buff, int size, std::function<int(const char*)>getChbytes);
+public:
+	MBin(const MBin& _Other) : TalksFile(_Other), encode(_Other.encode) { }
+	MBin& operator=(const MBin& _Other) {
+		TalksFile::operator=(_Other);
+		encode = _Other.encode;
+		return *this;
+	}
+	MBin(MBin&& _Right) : TalksFile(std::move(_Right)), encode(_Right.encode) { }
+	MBin& operator=(MBin&& _Right) {
+		TalksFile::operator=(std::move(_Right));
+		encode = _Right.encode;
+		return *this;
+	}
 
-	MBin() = default;
 protected:
-	TalksT talks;
-	PtrDialogList pDialogs;
+	int Create(const char* buff, int size);
+	Encode encode;
 };

@@ -77,10 +77,9 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 
-		MBin mbin;
-		rst = mbin.Create(dir_msg + name + ATTR_MBIN, utf8 ? Encode::GetChCount_Utf8 : Encode::GetChCount_SJis);
-		if (rst) {
-			std::cout << "Error with mbin file, Offset: 0x" << hex << rst << endl;
+		MBin mbin(dir_msg + name + ATTR_MBIN, utf8 ? MBin::Encode::UTF8 : MBin::Encode::SJIS);
+		if (!mbin.ErrMsg().empty()) {
+			std::cout << mbin.ErrMsg() << endl;
 			system("pause");
 			continue;
 		}
