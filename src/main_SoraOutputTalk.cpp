@@ -25,18 +25,20 @@ using namespace Sora;
 
 static void printUsage() {
 	std::cout << "Usage:\n"
-		"\t" "SoraOutputTalk format1[format2] dir_in_1 [dir_in_2] [dir_out_1] [dir_out_2] [report]\n"
 		"\n"
-		"    format1/format2: assign formats of input folders dir_in_1 and dir_in_2. (If format2 isn't assigned, only output from dir_in_1)\n"
-		"         Possible values:\n"
+		"  SoraOutputTalk format1[format2] dir_in_1 [dir_in_2] [dir_out_1] [dir_out_2] [report]\n"
+		"\n"
+		"    format1/format2: assign formats of input folders dir_in_1 and dir_in_2.\n"
+		"                     (If format2 isn't assigned, only output from dir_in_1)\n"
+		"         Possible values of format1 and format2:\n"
 		"             s : ._SN.txt\n"
 		"             m : .mbin (Shift-JIS)\n"
 		"             u : .mbin (UTF-8)\n"
 		"             t : .txt (same format with output files)\n"
 		"\n"
-		"   dir_in_1/dir_in_2: first/second input folders"
+		"   dir_in_1/dir_in_2: first/second input folder\n"
 		"\n"
-		"   dir_out_1/dir_out_2: first/second output folders"
+		"   dir_out_1/dir_out_2: first/second output folder\n"
 		"      Default values:\n"
 		"         dir_out_1 = dir_in_1.out\n"
 		"         dir_out_2 = dir_in_2.out\n"
@@ -44,12 +46,15 @@ static void printUsage() {
 		"   report : report file\n"
 		"\n"
 		"   Examples:\n"
+		"\n"
 		"       SoraOutputTalk sm dir1 dir2 dir1out dir2out report.txt\n"
 		"           Output dir1(._SN.txt) and dir2(.mbin) to dir1out and dir2out, with report file report.txt\n"
+		"\n"
 		"       SoraOutputTalk tt dir1 dir2\n"
 		"           Output dir1(.txt) and dir2(.txt) to dir1.out and dir2.out\n"
+		"\n"
 		"       SoraOutputTalk u dir1\n"
-		"           Output dir1(.mbin utf8) to dir1out\n"
+		"           Output dir1(.mbin utf8) to dir1.out\n"
 		<< endl;
 }
 
@@ -89,9 +94,7 @@ int main(int argc, char* argv[]) {
 			params.push_back(argv[i]);
 		}
 	}
-	if (params.size() < 2) {
-		return 0;
-	}
+	ERROR_EXIST(params.size() < 2);
 	string fmts = params[0];
 	ERROR_EXIST(fmts.length() != 1 && fmts.length() != 2);
 	char fmt1 = fmts[0], fmt2 = fmts[1];
