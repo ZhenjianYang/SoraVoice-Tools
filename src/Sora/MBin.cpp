@@ -1,6 +1,6 @@
 #include "MBin.h"
 
-#include <Utils/Encode.h>
+#include "Encode.h"
 
 #include <memory>
 #include <string>
@@ -22,7 +22,7 @@ inline static std::string createErrMsg(int ret) {
 	return ss.str();
 }
 
-MBin::MBin(const std::string& filename, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(const std::string& filename, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
 	std::ifstream ifs(filename, ios::binary);
 	if (!ifs) {
 		this->err = "Open file failed.";
@@ -38,19 +38,18 @@ MBin::MBin(const std::string& filename, Encode encode /*= Encode::SJIS*/) : Talk
 
 	this->err = createErrMsg(Create(buff.get(), size));
 }
-MBin::MBin(std::istream& is, int size, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(std::istream& is, int size, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
 	std::unique_ptr<char[]> buff = std::make_unique<char[]>(size);
 	is.read(buff.get(), size);
 
 	this->err = createErrMsg(Create(buff.get(), size));
 }
-MBin::MBin(const char* buff, int size, Encode encode /*= Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(const char* buff, int size, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
 	this->err = createErrMsg(Create(buff, size));
 }
 
-int MBin::Create(const char* buff, int size) {
-	std::function<int(const char*)> getChbytes = this->encode == Encode::SJIS ?
-			::Encode::GetChCount_SJis: ::Encode::GetChCount_Utf8;
+int Sora::MBin::Create(const char* buff, int size) {
+	const auto& getChbytes = Encode::GetChCoutFun(encode);
 
 	talks.clear();
 	pDialogs.clear();
@@ -61,31 +60,32 @@ int MBin::Create(const char* buff, int size) {
 	if(num > MAX_TALKS_IN_MBIN) return ip;
 	ip += 4;
 
-	vector<pair<int, int>> type_off_list;
+	vector<pair<Talk::Type, int>> type_off_list;
 	type_off_list.reserve(num + 1);
 	for (int i = 0; i < num; i++) {
 		int type = GET_INT(buff + ip);
 		int roff = GET_INT(buff + ip + 4);
 		if (type != 0) {
-			int tmp = -1;
-			for(int j = 0; j < Talk::NumTalkTypes; j++) {
-				if(Id_Talks[j] == type) {
-					tmp = j; break;
+			Talk::Type tmp = Talk::Type::InvalidTalk;
+			for(auto t : Talk::TypesList) {
+				if(type == Id_Talks[t]) {
+					tmp = t;
+					break;
 				}
 			}
-			if(tmp < 0) return ip;
+			if(tmp == Talk::Type::InvalidTalk) return ip;
 			type_off_list.push_back({ tmp, roff + 4 + 8 * num });
 		}
 		ip += 8;
 	}
-	type_off_list.push_back({0, size});
+	type_off_list.push_back({Talk::Type::InvalidTalk, size});
 
 	talks.reserve(type_off_list.size() - 1);
 
 	for(int i = 0; i < (int)type_off_list.size() - 1; i++) {
 		int start = type_off_list[i].second;
 		int end = type_off_list[i+1].second;
-		int type = type_off_list[i].first;
+		auto type = type_off_list[i].first;
 
 		if(end <= start) return start;
 
@@ -94,7 +94,7 @@ int MBin::Create(const char* buff, int size) {
 		talks.push_back(Talk(i, type, chrId));
 		auto& talk = talks.back();
 
-		if(type == Talk::NpcTalk) {
+		if(type == (int)Talk::Type::NpcTalk) {
 			talk.Name().assign(buff + ip);
 			ip += talk.Name().length() + 1;
 		}
@@ -105,11 +105,7 @@ int MBin::Create(const char* buff, int size) {
 		};
 	}
 
-	for(auto& talk : this->talks) {
-		for(auto& dlg : talk.Dialogs()) {
-			pDialogs.push_back(&dlg);
-		}
-	}
+	this->setPDialogs();
 
 	return 0;
 }

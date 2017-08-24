@@ -1,6 +1,6 @@
 #include "Snt.h"
 
-#include <Utils/Encode.h>
+#include "Encode.h"
 
 #include <string>
 #include <fstream>
@@ -8,9 +8,18 @@
 #include <cstring>
 
 using namespace std;
+using namespace Sora;
 
 static constexpr int MAXCH_ONELINE = 10000;
-static const auto& GetChCountFun = Encode::GetChCount_GBK;
+static const auto& GetChCountFun = Encode::GetChCoutFun(Encode::Encode::GBK);
+
+inline static std::string createErrMsg(int ret) {
+	if (ret == 0) return "";
+
+	stringstream ss;
+	ss << "Error with mbin file, Offset: 0x" << hex << ret;
+	return ss.str();
+}
 
 static auto getHexes(const std::string& str) {
 	vector<int> rst;
@@ -46,7 +55,7 @@ static auto getHexes(const std::string& str) {
 	return rst;
 }
 
-static auto sntStr2TalkStr(const std::string& str) {
+std::pair<bool, std::string> Sora::Snt::SntStr2TalkStr(const std::string& str) {
 	std::pair<bool, string> rst{ true, ""};
 
 	size_t i = 0;
@@ -84,7 +93,7 @@ static auto sntStr2TalkStr(const std::string& str) {
 	return rst;
 }
 
-static auto talkStr2SntStr(const std::string& str) {
+std::string Sora::Snt::TalkStr2SntStr(const std::string& str) {
 	string rst;
 	char buff[12];
 	size_t i = 0;
@@ -116,18 +125,53 @@ static auto talkStr2SntStr(const std::string& str) {
 	return rst;
 }
 
-int Snt::Create(std::istream & is)
+void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk) {
+	char buff[12];
+	os << Snt::Str_Talks[talk.GetType()] << '\n';
+	if (talk.GetType() != Talk::AnonymousTalk) {
+		std::sprintf(buff, "[%02X %02X]", talk.ChrId() & 0xFF, (talk.ChrId() >> 8) & 0xFF);
+		os << buff << '\n';
+	}
+	if (talk.GetType() == Talk::NpcTalk) {
+		os << "\t\t\t\t'" << talk.Name() << "\"\n";
+	}
+	os << "'";
+
+	for (const auto& dlg : talk.Dialogs()) {
+		os << '\n';
+		for (const auto& line : dlg.Lines()) {
+			os << "\t\t\t\t" << Sora::Snt::TalkStr2SntStr(line) << '\n';
+		}
+	}
+	os << '"' << '\n';
+}
+
+
+Sora::Snt::Snt(const std::string& filename) {
+	std::ifstream ifs(filename);
+	if (!ifs) {
+		this->err = "Open file failed.";
+		return;
+	}
+	this->err = createErrMsg(Create(ifs));
+}
+
+Sora::Snt::Snt(std::istream& is) {
+	this->err = createErrMsg(Create(is));
+}
+
+int Sora::Snt::Create(std::istream & is)
 {
 	lines.clear();
 	talks.clear();
 	pDialogs.clear();
 
 	char buff[MAXCH_ONELINE + 1];
-	constexpr int InvalidTalkId = Talk::InvalidTalk;
+	constexpr auto InvalidTalkId = Talk::Type::InvalidTalk;
 
 	bool name_finished = false;
 	bool text_beg = false;
-	int talks_id = InvalidTalkId;
+	auto talks_id = InvalidTalkId;
 	int no = 0;
 	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
 
@@ -142,10 +186,10 @@ int Snt::Create(std::istream & is)
 		while (is < s.length()) {
 			if (talks_id == InvalidTalkId) {
 				auto idx = string::npos;
-				for (int tid = 0; tid < Talk::NumTalkTypes; tid++) {
+				for (auto tid : Talk::TypesList) {
 					if ((idx = s.find(Str_Talks[tid], is)) != string::npos) {
 						talks_id = tid;
-						name_finished = talks_id != (int)Talk::NpcTalk;
+						name_finished = talks_id != Talk::NpcTalk;
 						text_beg = false;
 						if (idx > 0) {
 							lines.push_back({line_no, s.substr(is, idx - is)});
@@ -205,7 +249,7 @@ int Snt::Create(std::istream & is)
 			while (s[is] == '\t') ++is;
 
 			auto idx = s.find('"', is);
-			auto fixed = sntStr2TalkStr(s.substr(is, idx - is));
+			auto fixed = SntStr2TalkStr(s.substr(is, idx - is));
 			if (!fixed.first) return line_no;
 
 			if (!talks.back().Add(fixed.second, GetChCountFun)) {
@@ -221,62 +265,24 @@ int Snt::Create(std::istream & is)
 		}//while (i < s.length())
 	}//for line_no
 
-	for(auto& talk : this->talks) {
-		for(auto& dlg : talk.Dialogs()) {
-			pDialogs.push_back(&dlg);
-		}
-	}
+	this->setPDialogs();
 
 	return 0;
 }
 
-int Snt::Create(const std::string& filename) {
-	std::ifstream ifs(filename);
-	if (!ifs) return false;
-	return Create(ifs);
-}
-
-static void outputTalk(std::ostream& os, const Talk& talk) {
-	char buff[12];
-	os << Snt::Str_Talks[talk.Type()] << '\n';
-	if(talk.Type() != Talk::AnonymousTalk) {
-		std::sprintf(buff, "[%02X %02X]", talk.ChrId() & 0xFF, (talk.ChrId() >> 8) & 0xFF);
-		os << buff << '\n';
-	}
-	if(talk.Type() == Talk::NpcTalk) {
-		os << "\t\t\t\t'" << talk.Name() << "\"\n";
-	}
-	os << "'";
-
-	for(const auto& dlg : talk.Dialogs()) {
-		os << '\n';
-		for(const auto& line : dlg.Lines()) {
-			os << "\t\t\t\t" << talkStr2SntStr(line) << '\n';
-		}
-	}
-
-	os << '"' << '\n';
-}
-
-bool Snt::WriteTo(std::ostream& os) const {
+bool Sora::Snt::WriteTo(std::ostream& os) const {
 	for(const auto& line : lines) {
 		if(line.lineNo > 0) os << line.content << '\n';
-		else outputTalk(os, talks[-line.lineNo]);
+		else OutputTalk(os, talks[-line.lineNo]);
 	}
 	os << std::flush;
 
 	return true;
 }
 
-bool Snt::WriteTo(const std::string& filename) const {
+bool Sora::Snt::WriteTo(const std::string& filename) const {
 	std::ofstream ofs(filename);
 	if (!ofs) return false;
 	return WriteTo(ofs);
-}
-
-std::string Snt::ToString() const {
-	stringstream ss;
-	if(this->WriteTo(ss)) return ss.str();
-	else return "";
 }
 

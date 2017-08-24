@@ -50,13 +50,17 @@
     <ClCompile Include="..\..\src\main_SoraOutputTalk.cpp" />
     <ClCompile Include="..\..\src\Sora\MBin.cpp" />
     <ClCompile Include="..\..\src\Sora\Snt.cpp" />
+    <ClCompile Include="..\..\src\Sora\Txt.cpp" />
     <ClCompile Include="..\..\src\Utils\Files.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\Sora\Encode.h" />
     <ClInclude Include="..\..\src\Sora\MBin.h" />
+    <ClInclude Include="..\..\src\Sora\Snt.h" />
     <ClInclude Include="..\..\src\Sora\Talk.h" />
     <ClInclude Include="..\..\src\Sora\TalkOut.h" />
-    <ClInclude Include="..\..\src\Utils\Encode.h" />
+    <ClInclude Include="..\..\src\Sora\TalksFile.h" />
+    <ClInclude Include="..\..\src\Sora\Txt.h" />
     <ClInclude Include="..\..\src\Utils\Files.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
