@@ -1,12 +1,13 @@
 #include "Txt.h"
 
-#include <memory>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <cstring>
 
 using namespace std;
+
+static constexpr int MAXCH_ONELINE = 10000;
 
 inline static std::string createErrMsg(int ret) {
 	if(ret == 0) return "";
@@ -27,9 +28,10 @@ std::pair<bool, std::string> Sora::Txt::TxtStr2TalkStr(const std::string& str) {
 			for (int j = 0; j < 2; j++, i++) {
 				if (str[i] >= '0' && str[i] <= '9') hv += str[i] - '0';
 				else if (str[i] >= 'a' && str[i] <= 'f') hv += str[i] - 'a' + 10;
-				else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'F' + 10;
+				else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'A' + 10;
 				else return rst = { false, "" };
 			}
+			rst.second.push_back(hv);
 		}
 		else {
 			rst.second.push_back(str[i++]);
@@ -103,7 +105,87 @@ Sora::Txt::Txt(std::istream& is) : TalksFile() {
 }
 
 int Sora::Txt::Create(std::istream& is) {
+	talks.clear();
+	pDialogs.clear();
+	char buff[MAXCH_ONELINE + 1];
 
+	auto talks_type = Talk::Type::InvalidTalk;
+	bool chrId_got = false;
+	bool name_got = false;
+	bool new_talk = false;
+
+	const vector<string> str_types {Talk::Str_TalkTypes,  Talk::Str_TalkTypes + Talk::NumTalkTypes};
+
+	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
+		string s(line_no == 0 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
+
+		if(s.empty()) continue;
+		if(s[0] == '\t' || s[0] == ';') continue;
+
+		for (auto tt : Talk::TypesList) {
+			if(s.substr(0, str_types[tt].length()) == str_types[tt]) {
+				talks_type = tt;
+
+				auto idx = str_types[tt].length();
+				while(s[idx] == ' ' || s[idx] == '\t') idx++;
+
+				if(s[idx] != '#') return line_no;
+
+				idx++;
+				int no = 0;
+				while(s.back() == ' ' || s.back() == '\t') s.pop_back();
+				if(idx >= s.length()) return line_no;
+				while(idx < s.length()) {
+					no *= 10;
+					if(s[idx] >= '0' && s[idx] <= '9') no += s[idx] - '0';
+					else return line_no;
+					idx++;
+				}
+
+				talks.push_back(Talk(no, talks_type));
+				name_got = talks_type != Talk::Type::NpcTalk;
+				chrId_got = false;
+				new_talk = true;
+				break;
+			}
+		}
+		if(talks_type == Talk::Type::InvalidTalk) {
+			return line_no;
+		}
+		if(new_talk) {
+			new_talk = false;
+			continue;
+		}
+
+		if(!chrId_got && s[0] == '0' && s[1] == 'x') {
+			size_t idx = 2;
+			int chrId = 0;
+			while(s.back() == ' ' || s.back() == '\t') s.pop_back();
+			if(idx >= s.length()) return line_no;
+			while(idx < s.length()) {
+				chrId *= 16;
+				if(s[idx] >= '0' && s[idx] <= '9') chrId += s[idx] - '0';
+				else if (s[idx] >= 'a' && s[idx] <= 'f') chrId += s[idx] - 'a' + 10;
+				else if (s[idx] >= 'A' && s[idx] <= 'F') chrId += s[idx] - 'A' + 10;
+				else return line_no;
+				idx++;
+			}
+			talks.back().SetChrId(chrId);
+			continue;
+		}
+		chrId_got = true;
+
+		if(!name_got) {
+			talks.back().Name() = s;
+			name_got = true;
+			continue;
+		}
+
+		auto tlkStr = TxtStr2TalkStr(s);
+		if(!tlkStr.first) return line_no;
+
+		talks.back().Add(tlkStr.second);
+	}
 
 	this->setPDialogs();
 	return 0;

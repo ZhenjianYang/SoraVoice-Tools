@@ -95,17 +95,15 @@ namespace Sora {
 			dialogs({ {*this, 0, {""}} }) {
 		}
 
-		template<typename GetChBytesFun, typename IgnoreList = decltype(Dft_Ignore_List_A)>
-		bool Add(const std::string& content, GetChBytesFun getChbytes, const IgnoreList& ignore_list = Dft_Ignore_List_A) {
+		template<typename IgnoreList = decltype(Dft_Ignore_List_A)>
+		bool Add(const std::string& content, const IgnoreList& ignore_list = Dft_Ignore_List_A) {
 			auto & p = content;
 
 			size_t i = 0;
 			while (i < p.length()) {
 				if (p[i] == '\t') { i++; continue; }
 
-				int bytes = getChbytes(p.c_str() + i);
-				if (bytes <= 0) return false;
-
+				int bytes = 1;
 				OP op{ 0, 0 };
 				bool isSymbol = false;
 				if (p[i] == '#') {
@@ -172,8 +170,7 @@ namespace Sora {
 				if (op.op && std::find(std::begin(ignore_list), std::end(ignore_list), op.op) == std::end(ignore_list)) {
 					dialogs.back().ops.push_back(op);
 				}
-				dialogs.back().lines.back().append(p.substr(i, bytes));
-				i += bytes;
+				for(; bytes > 0;bytes --) dialogs.back().lines.back().push_back(p[i++]);
 			}
 			return true;
 		}

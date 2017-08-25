@@ -32,8 +32,7 @@ static inline void printUsage() {
 		"                     (If format2 isn't assigned, only output from dir_in_1)\n"
 		"         Possible values of format1 and format2:\n"
 		"             s : ._SN.txt\n"
-		"             m : .mbin (Shift-JIS)\n"
-		"             u : .mbin (UTF-8)\n"
+		"             m : .mbin\n"
 		"             t : .txt (same format with output files)\n"
 		"\n"
 		"   dir_in_1/dir_in_2: first/second input folder\n"
@@ -53,8 +52,8 @@ static inline void printUsage() {
 		"       SoraOutputTalk tt dir1 dir2\n"
 		"           Output dir1(.txt) and dir2(.txt) to dir1.out and dir2.out\n"
 		"\n"
-		"       SoraOutputTalk u dir1\n"
-		"           Output dir1(.mbin utf8) to dir1.out\n"
+		"       SoraOutputTalk m dir1\n"
+		"           Output dir1(.mbin) to dir1.out\n"
 		<< endl;
 }
 
@@ -65,7 +64,6 @@ static inline const char* getExt(char fmt) {
 	{
 	case 's':return ATTR_SNT;
 	case 'm':return ATTR_MBIN;
-	case 'u':return ATTR_MBIN;
 	case 't':return ATTR_TXT;
 	default: return nullptr;
 	}
@@ -75,8 +73,7 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	switch (fmt)
 	{
 	case 's':return make_unique<Sora::Snt>(fileName);
-	case 'm':return make_unique<Sora::MBin>(fileName, Encode::Encode::SJIS);
-	case 'u':return make_unique<Sora::MBin>(fileName, Encode::Encode::UTF8);
+	case 'm':return make_unique<Sora::MBin>(fileName);
 	case 't':return make_unique<Sora::Txt>(fileName);
 	default: return nullptr;
 	}

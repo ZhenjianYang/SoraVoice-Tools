@@ -97,17 +97,18 @@ std::string Sora::Snt::TalkStr2SntStr(const std::string& str) {
 	string rst;
 	char buff[12];
 	size_t i = 0;
+	using byte = unsigned char;
 	while (i < str.length()) {
 		if(str[i] == OP::SCPSTR_CODE_ITEM) {
-			std::sprintf(buff, "'[%02X%02X%02X]'", str[i], str[i+1], str[i+2]);
+			std::sprintf(buff, "'[%02X%02X%02X]'", (byte)str[i], (byte)str[i+1], (byte)str[i+2]);
 			rst.append(buff);
 			i += 3;
 		} else if (str[i] == OP::SCPSTR_CODE_COLOR) {
-			std::sprintf(buff, "'[%02X%02X]'", str[i], str[i+1]);
+			std::sprintf(buff, "'[%02X%02X]'", (byte)str[i], (byte)str[i+1]);
 			rst.append(buff);
 			i += 2;
 		} else if (str[i] > 5 && str[i] < 0x20) {
-			std::sprintf(buff, "'[%02X]'", str[i]);
+			std::sprintf(buff, "'[%02X]'", (byte)str[i]);
 			rst.append(buff);
 			i += 1;
 		} else if (str[i] >= 0 && str[i] <= 5) {
@@ -126,10 +127,11 @@ std::string Sora::Snt::TalkStr2SntStr(const std::string& str) {
 }
 
 void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk) {
+	using byte = unsigned char;
 	char buff[12];
 	os << Snt::Str_Talks[talk.GetType()] << '\n';
 	if (talk.GetType() != Talk::AnonymousTalk) {
-		std::sprintf(buff, "[%02X %02X]", talk.ChrId() & 0xFF, (talk.ChrId() >> 8) & 0xFF);
+		std::sprintf(buff, "[%02X %02X]", (byte)(talk.ChrId() & 0xFF), (byte)((talk.ChrId() >> 8) & 0xFF));
 		os << buff << '\n';
 	}
 	if (talk.GetType() == Talk::NpcTalk) {
@@ -252,7 +254,7 @@ int Sora::Snt::Create(std::istream & is)
 			auto fixed = SntStr2TalkStr(s.substr(is, idx - is));
 			if (!fixed.first) return line_no;
 
-			if (!talks.back().Add(fixed.second, GetChCountFun)) {
+			if (!talks.back().Add(fixed.second)) {
 				return line_no;
 			};
 			if (idx != string::npos) {

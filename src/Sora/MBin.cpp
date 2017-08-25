@@ -1,7 +1,5 @@
 #include "MBin.h"
 
-#include "Encode.h"
-
 #include <memory>
 #include <string>
 #include <fstream>
@@ -22,7 +20,7 @@ inline static std::string createErrMsg(int ret) {
 	return ss.str();
 }
 
-Sora::MBin::MBin(const std::string& filename, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(const std::string& filename) : TalksFile() {
 	std::ifstream ifs(filename, ios::binary);
 	if (!ifs) {
 		this->err = "Open file failed.";
@@ -38,19 +36,17 @@ Sora::MBin::MBin(const std::string& filename, Encode::Encode encode /*= Encode::
 
 	this->err = createErrMsg(Create(buff.get(), size));
 }
-Sora::MBin::MBin(std::istream& is, int size, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(std::istream& is, int size) : TalksFile() {
 	std::unique_ptr<char[]> buff = std::make_unique<char[]>(size);
 	is.read(buff.get(), size);
 
 	this->err = createErrMsg(Create(buff.get(), size));
 }
-Sora::MBin::MBin(const char* buff, int size, Encode::Encode encode /*= Encode::Encode::SJIS*/) : TalksFile(), encode(encode) {
+Sora::MBin::MBin(const char* buff, int size) : TalksFile() {
 	this->err = createErrMsg(Create(buff, size));
 }
 
 int Sora::MBin::Create(const char* buff, int size) {
-	const auto& getChbytes = Encode::GetChCoutFun(encode);
-
 	talks.clear();
 	pDialogs.clear();
 
@@ -100,7 +96,7 @@ int Sora::MBin::Create(const char* buff, int size) {
 		}
 		if(ip >= end) return start;
 
-		if (!talk.Add(string(buff + ip, end - ip - 1), getChbytes)) {
+		if (!talk.Add(string(buff + ip, end - ip - 1))) {
 			return start;
 		};
 	}
