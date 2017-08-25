@@ -204,8 +204,8 @@ namespace Sora {
 				}
 
 				if (talk1.GetType() == Talk::NpcTalk || talk2.GetType() == Talk::NpcTalk) {
-					if (talk1.GetType() == Talk::NpcTalk) os1 << talk1.Name() << '\n'; ELSE_EMPTY_LINE(os1);
-					if (talk2.GetType() == Talk::NpcTalk) os2 << talk2.Name() << '\n'; ELSE_EMPTY_LINE(os2);
+					if (talk1.GetType() == Talk::NpcTalk && dlg1.No() == 0) os1 << talk1.Name() << '\n'; ELSE_EMPTY_LINE(os1);
+					if (talk2.GetType() == Talk::NpcTalk && dlg2.No() == 0) os2 << talk2.Name() << '\n'; ELSE_EMPTY_LINE(os2);
 				}
 			}
 

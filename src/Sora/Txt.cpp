@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ std::pair<bool, std::string> Sora::Txt::TxtStr2TalkStr(const std::string& str) {
 			i += 2;
 			int hv = 0;
 			for (int j = 0; j < 2; j++, i++) {
+				hv <<= 4;
 				if (str[i] >= '0' && str[i] <= '9') hv += str[i] - '0';
 				else if (str[i] >= 'a' && str[i] <= 'f') hv += str[i] - 'a' + 10;
 				else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'A' + 10;
@@ -123,7 +125,7 @@ int Sora::Txt::Create(std::istream& is) {
 		if(s[0] == '\t' || s[0] == ';') continue;
 
 		for (auto tt : Talk::TypesList) {
-			if(s.substr(0, str_types[tt].length()) == str_types[tt]) {
+			if(std::equal(str_types[tt].cbegin(), str_types[tt].cend(), s.c_str())) {
 				talks_type = tt;
 
 				auto idx = str_types[tt].length();
@@ -163,7 +165,7 @@ int Sora::Txt::Create(std::istream& is) {
 			while(s.back() == ' ' || s.back() == '\t') s.pop_back();
 			if(idx >= s.length()) return line_no;
 			while(idx < s.length()) {
-				chrId *= 16;
+				chrId <<= 4;
 				if(s[idx] >= '0' && s[idx] <= '9') chrId += s[idx] - '0';
 				else if (s[idx] >= 'a' && s[idx] <= 'f') chrId += s[idx] - 'a' + 10;
 				else if (s[idx] >= 'A' && s[idx] <= 'F') chrId += s[idx] - 'A' + 10;
