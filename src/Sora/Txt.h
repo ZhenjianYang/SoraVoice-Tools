@@ -22,7 +22,7 @@ namespace Sora {
 		template<typename TalksContainer>
 		Txt(const TalksContainer &talks) : TalksFile() {
 			this->talks.reserve(std::size(talks));
-			for (const &auto talk : talks) {
+			for (const auto& talk : talks) {
 				this->talks.push_back(talk);
 			}
 			this->setPDialogs();
@@ -31,11 +31,12 @@ namespace Sora {
 		Txt& operator=(const TalksContainer &talks) {
 			this->talks.clear();
 			this->talks.reserve(std::size(talks));
-			for (const &auto talk : talks) {
+			for (const auto& talk : talks) {
 				this->talks.push_back(talk);
 			}
 			this->err.clear();
 			this->setPDialogs();
+			return *this;
 		}
 		Txt(TalksT &&talks) : TalksFile() {
 			this->talks = std::move(talks);
@@ -45,12 +46,13 @@ namespace Sora {
 			this->talks = std::move(talks);
 			this->err.clear();
 			this->setPDialogs();
+			return *this;
 		}
 
 		Txt(const TalksFile &talksFile) : TalksFile(talksFile) { }
-		Txt& operator= (const TalksFile &talksFile) { TalksFile::operator=(talksFile); }
+		Txt& operator= (const TalksFile &talksFile) { TalksFile::operator=(talksFile); return *this; }
 		Txt(TalksFile &&talksFile) : TalksFile(std::move(talksFile)) { }
-		Txt& operator= (TalksFile &&talksFile) { TalksFile::operator=(std::move(talksFile)); }
+		Txt& operator= (TalksFile &&talksFile) { TalksFile::operator=(std::move(talksFile)); return *this; }
 
 		virtual bool WriteTo(std::ostream& os) const override;
 		virtual bool WriteTo(const std::string& filename) const override;

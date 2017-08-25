@@ -23,7 +23,7 @@
 using namespace std;
 using namespace Sora;
 
-static void printUsage() {
+static inline void printUsage() {
 	std::cout << "Usage:\n"
 		"\n"
 		"  SoraOutputTalk format1[format2] dir_in_1 [dir_in_2] [dir_out_1] [dir_out_2] [report]\n"
@@ -60,7 +60,7 @@ static void printUsage() {
 
 #define ERROR_EXIST(condition) if(condition) { printUsage(); return -1; }
 
-static const char* getExt(char fmt) {
+static inline const char* getExt(char fmt) {
 	switch (fmt)
 	{
 	case 's':return ATTR_SNT;
@@ -71,7 +71,7 @@ static const char* getExt(char fmt) {
 	}
 }
 
-static unique_ptr<TalksFile> getTalksFile(const std::string& fileName, char fmt) {
+static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, char fmt) {
 	switch (fmt)
 	{
 	case 's':return make_unique<Sora::Snt>(fileName);
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
 		auto ptf2 = getTalksFile(dir2 + fn2, fmt2);
 		const auto &tf2 = *ptf2;
 		if (!tf2.ErrMsg().empty()) {
-			std::cout << ptf1->ErrMsg() << endl;
+			std::cout << tf2.ErrMsg() << endl;
 			system("pause");
 			continue;
 		}

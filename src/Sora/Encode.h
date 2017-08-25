@@ -23,7 +23,7 @@ namespace Encode {
 		return (unsigned char)*p < 0x80 || ((unsigned char)*p >= 0xA1 && (unsigned char)*p <= 0xDF) ? 1 : 2;
 	}
 
-	static auto GetChCoutFun(Encode encode) {
+	static inline auto GetChCoutFun(Encode encode) {
 		switch (encode)
 		{
 		case Encode::GBK:

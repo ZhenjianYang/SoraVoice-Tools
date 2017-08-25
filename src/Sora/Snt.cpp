@@ -21,7 +21,7 @@ inline static std::string createErrMsg(int ret) {
 	return ss.str();
 }
 
-static auto getHexes(const std::string& str) {
+inline static auto getHexes(const std::string& str) {
 	vector<int> rst;
 	int val = 0;
 	int cnt = 0;
