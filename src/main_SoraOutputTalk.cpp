@@ -151,10 +151,6 @@ int main(int argc, char* argv[]) {
 			system("pause");
 			continue;
 		}
-		if (tf1.Talks().empty()) {
-			std::cout << "No talks, Skip." << endl;
-			continue;
-		}
 
 		if (!fmt2) {
 			Sora::Txt txt1(std::move(tf1));
@@ -179,13 +175,16 @@ int main(int argc, char* argv[]) {
 			system("pause");
 			continue;
 		}
-		if (tf2.Talks().empty()) {
+
+		if (tf1.Talks().empty() && tf2.Talks().empty()) {
 			std::cout << "No talks, Skip." << endl;
 			continue;
 		}
 
-		ofstream ofs_snt_out(dir1_out + name + ".txt");
-		ofstream ofs_msg_out(dir2_out + name + ".txt");
+		ofstream ofs1_out;
+		ofstream ofs2_out;
+		if(!tf1.Talks().empty()) ofs1_out.open(dir1_out + name + ".txt");
+		if(!tf2.Talks().empty()) ofs2_out.open(dir2_out + name + ".txt");
 
 		int not_mch_l = 0;
 		int not_mch_r = 0;
@@ -197,11 +196,11 @@ int main(int argc, char* argv[]) {
 			if (!t_snt) not_mch_l++;
 			if (!t_mst) not_mch_r++;
 
-			TOut::OutputTwoPtrDialog(ofs_snt_out, t_snt, ofs_msg_out, t_mst);
+			TOut::OutputTwoPtrDialog(ofs1_out, t_snt, ofs2_out, t_mst);
 		}
 
-		ofs_snt_out.close();
-		ofs_msg_out.close();
+		ofs1_out.close();
+		ofs2_out.close();
 
 		std::cout << endl;
 

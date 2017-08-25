@@ -97,6 +97,8 @@ namespace Sora {
 		class JudgeTalkT {
 		public:
 			JudgeVT operator()(const Talk& a, const Talk& b) const {
+				if (a.GetType() == Talk::InvalidTalk || b.GetType() == Talk::InvalidTalk) return -5000;
+
 				JudgeVT rst = 0;
 				if (a.GetType() == b.GetType()) rst += 10;
 				if (a.ChrId() == b.ChrId()) rst += 5;

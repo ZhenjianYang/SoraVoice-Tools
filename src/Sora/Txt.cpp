@@ -1,6 +1,7 @@
 #include "Txt.h"
 
 #include <string>
+#include <memory>
 #include <fstream>
 #include <sstream>
 #include <cstring>
@@ -72,14 +73,15 @@ std::string Sora::Txt::TalkStr2TxtStr(const std::string& str) {
 }
 
 void Sora::Txt::OutputTalk(std::ostream& os, const Talk& talk) {
+	if (talk.No() < 0 || talk.GetType() == Talk::InvalidTalk) return;
+
 	os << '\n';
 	os << ";----------------------------------------------------------------------------------\n";
 	os << ";----------------------------------------------------------------------------------\n";
 	os << '\n';
 
-	if (talk.GetType() != Talk::Type::InvalidTalk)os << Talk::Str_TalkTypes[talk.GetType()] << " #"
+	os << Talk::Str_TalkTypes[talk.GetType()] << " #"
 		<< std::dec << talk.No() << '\n';
-	else os << ";INVALID_TALK\n";
 
 	if (talk.ChrId() != Talk::InvalidChrId) os << "0x" << std::hex << talk.ChrId() << '\n';
 	if (talk.GetType() == Talk::NpcTalk) os << talk.Name() << '\n';
@@ -118,6 +120,8 @@ int Sora::Txt::Create(std::istream& is) {
 
 	const vector<string> str_types {Talk::Str_TalkTypes,  Talk::Str_TalkTypes + Talk::NumTalkTypes};
 
+	vector<unique_ptr<Talk>> tmp_talks;
+	Talk* ptr_cur = nullptr;
 	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
 		string s(line_no == 0 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
 
@@ -143,15 +147,23 @@ int Sora::Txt::Create(std::istream& is) {
 					else return line_no;
 					idx++;
 				}
+				if (no >= TalksFile::MaxTalksNum) {
+					return line_no;
+				}
 
-				talks.push_back(Talk(no, talks_type));
+				if (no >= (int)tmp_talks.size()) {
+					tmp_talks.resize(no + 1);
+				}
+				tmp_talks[no] = std::make_unique<Talk>(no, talks_type);
 				name_got = talks_type != Talk::Type::NpcTalk;
 				chrId_got = false;
 				new_talk = true;
+
+				ptr_cur = tmp_talks[no].get();
 				break;
 			}
 		}
-		if(talks_type == Talk::Type::InvalidTalk) {
+		if(!ptr_cur) {
 			return line_no;
 		}
 		if(new_talk) {
@@ -172,13 +184,13 @@ int Sora::Txt::Create(std::istream& is) {
 				else return line_no;
 				idx++;
 			}
-			talks.back().SetChrId(chrId);
+			ptr_cur->SetChrId(chrId);
 			continue;
 		}
 		chrId_got = true;
 
 		if(!name_got) {
-			talks.back().Name() = s;
+			ptr_cur->Name() = s;
 			name_got = true;
 			continue;
 		}
@@ -186,7 +198,17 @@ int Sora::Txt::Create(std::istream& is) {
 		auto tlkStr = TxtStr2TalkStr(s);
 		if(!tlkStr.first) return line_no;
 
-		talks.back().Add(tlkStr.second);
+		ptr_cur->Add(tlkStr.second);
+	}
+
+	this->talks.reserve(tmp_talks.size());
+	for (auto& talk : tmp_talks) {
+		if (talk) {
+			talks.push_back(std::move(*talk));
+		}
+		else {
+			talks.push_back(Talk(-1, Talk::InvalidTalk));
+		}
 	}
 
 	this->ResetPDialogs();

@@ -11,6 +11,7 @@ namespace Sora {
 	class TalksFile {
 	public:
 		using TalksT = std::vector<Talk>;
+		static constexpr int MaxTalksNum = 5000;
 
 		TalksT& Talks() { return talks; }
 		const TalksT& Talks() const { return talks; }
