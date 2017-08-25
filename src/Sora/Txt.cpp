@@ -187,7 +187,7 @@ int Sora::Txt::Create(std::istream& is) {
 		talks.back().Add(tlkStr.second);
 	}
 
-	this->setPDialogs();
+	this->ResetPDialogs();
 	return 0;
 }
 

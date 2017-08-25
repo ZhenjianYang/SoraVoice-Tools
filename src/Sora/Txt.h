@@ -25,7 +25,7 @@ namespace Sora {
 			for (const auto& talk : talks) {
 				this->talks.push_back(talk);
 			}
-			this->setPDialogs();
+			this->ResetPDialogs();
 		}
 		template<typename TalksContainer>
 		Txt& operator=(const TalksContainer &talks) {
@@ -35,17 +35,17 @@ namespace Sora {
 				this->talks.push_back(talk);
 			}
 			this->err.clear();
-			this->setPDialogs();
+			this->ResetPDialogs();
 			return *this;
 		}
 		Txt(TalksT &&talks) : TalksFile() {
 			this->talks = std::move(talks);
-			this->setPDialogs();
+			this->ResetPDialogs();
 		}
 		Txt& operator=(TalksT &&talks) {
 			this->talks = std::move(talks);
 			this->err.clear();
-			this->setPDialogs();
+			this->ResetPDialogs();
 			return *this;
 		}
 

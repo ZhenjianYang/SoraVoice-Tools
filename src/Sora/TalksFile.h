@@ -28,23 +28,23 @@ namespace Sora {
 	public:
 		TalksFile(const TalksFile& _Other) :
 			talks(_Other.talks), err(_Other.err) {
-			setPDialogs();
+			ResetPDialogs();
 		}
 		TalksFile& operator=(const TalksFile& _Other) {
 			talks = _Other.talks;
 			err = _Other.err;
-			setPDialogs();
+			ResetPDialogs();
 			return *this;
 		}
 		TalksFile(TalksFile&& _Right) :
 			talks(std::move(_Right.talks)), pDialogs(std::move(_Right.pDialogs)), err(std::move(_Right.err)) {
-			setPDialogs();
+			ResetPDialogs();
 		}
 		TalksFile& operator=(TalksFile&& _Right) {
 			talks = std::move(_Right.talks);
 			pDialogs = std::move(_Right.pDialogs);
 			err = std::move(_Right.err);
-			setPDialogs();
+			ResetPDialogs();
 			return *this;
 		}
 
@@ -53,7 +53,8 @@ namespace Sora {
 		PtrDialogList pDialogs;
 		std::string err;
 
-		void setPDialogs() {
+	public:
+		void ResetPDialogs() {
 			pDialogs.clear();
 			for (auto& talk : this->talks) {
 				for (auto& dlg : talk.Dialogs()) {

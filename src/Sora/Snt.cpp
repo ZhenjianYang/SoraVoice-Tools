@@ -267,7 +267,7 @@ int Sora::Snt::Create(std::istream & is)
 		}//while (i < s.length())
 	}//for line_no
 
-	this->setPDialogs();
+	this->ResetPDialogs();
 
 	return 0;
 }

@@ -101,7 +101,7 @@ int Sora::MBin::Create(const char* buff, int size) {
 		};
 	}
 
-	this->setPDialogs();
+	this->ResetPDialogs();
 
 	return 0;
 }
