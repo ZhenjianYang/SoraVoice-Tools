@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 		if (!fmt2) {
 			Sora::Txt txt1(std::move(tf1));
 			ofstream ofs1_out(dir1_out + name + ".txt");
-			txt1.WriteTo(ofs1_out);
+			txt1.WriteTo(ofs1_out, true);
 			ofs1_out.close();
 
 			ofs_rep << std::setw(10) << name
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 			if (!t_snt) not_mch_l++;
 			if (!t_mst) not_mch_r++;
 
-			TOut::OutputTwoPtrDialog(ofs1_out, t_snt, ofs2_out, t_mst);
+			TOut::OutputTwoPtrDialog(ofs1_out, t_snt, ofs2_out, t_mst, true);
 		}
 
 		ofs1_out.close();

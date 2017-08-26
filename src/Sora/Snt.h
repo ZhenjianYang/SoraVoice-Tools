@@ -13,7 +13,7 @@ namespace Sora {
 	public:
 		static std::pair<bool, std::string> SntStr2TalkStr(const std::string& str);
 		static std::string TalkStr2SntStr(const std::string& str);
-		static void OutputTalk(std::ostream& os, const Talk& talk);
+		static void OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt = false);
 
 	public:
 		static constexpr const char* Str_Talks[] = {
@@ -25,8 +25,8 @@ namespace Sora {
 		using SntLineT = struct { int lineNo; std::string content; };
 		using SntLinesT = std::vector<SntLineT>;
 
-		virtual bool WriteTo(std::ostream& os) const override;
-		virtual bool WriteTo(const std::string& filename) const override;
+		virtual bool WriteTo(std::ostream& os, bool with_cmt = false) const override;
+		virtual bool WriteTo(const std::string& filename, bool with_cmt = false) const override;
 
 		SntLinesT& Lines() { return lines; }
 		const SntLinesT& Lines() const { return lines; }

@@ -126,7 +126,7 @@ std::string Sora::Snt::TalkStr2SntStr(const std::string& str) {
 	return rst;
 }
 
-void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk) {
+void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	using byte = unsigned char;
 	char buff[12];
 	os << Snt::Str_Talks[talk.GetType()] << '\n';
@@ -142,7 +142,9 @@ void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk) {
 	for (const auto& dlg : talk.Dialogs()) {
 		os << '\n';
 		for (const auto& line : dlg.Lines()) {
-			os << "\t\t\t\t" << Sora::Snt::TalkStr2SntStr(line) << '\n';
+			os << "\t\t\t\t" << Sora::Snt::TalkStr2SntStr(line.text)
+				<< (with_cmt && !line.cmt.empty() ? "\t\t\t##" + line.cmt : "")
+				<< '\n';
 		}
 	}
 	os << '"' << '\n';
@@ -272,19 +274,19 @@ int Sora::Snt::Create(std::istream & is)
 	return 0;
 }
 
-bool Sora::Snt::WriteTo(std::ostream& os) const {
+bool Sora::Snt::WriteTo(std::ostream& os, bool with_cmt) const {
 	for(const auto& line : lines) {
 		if(line.lineNo > 0) os << line.content << '\n';
-		else OutputTalk(os, talks[-line.lineNo]);
+		else OutputTalk(os, talks[-line.lineNo], with_cmt);
 	}
 	os << std::flush;
 
 	return true;
 }
 
-bool Sora::Snt::WriteTo(const std::string& filename) const {
+bool Sora::Snt::WriteTo(const std::string& filename, bool with_cmt) const {
 	std::ofstream ofs(filename);
 	if (!ofs) return false;
-	return WriteTo(ofs);
+	return WriteTo(ofs, with_cmt);
 }
 

@@ -28,8 +28,10 @@ using namespace Sora;
 static inline void printUsage() {
 	std::cout << "Usage:\n"
 		"\n"
-		"  SoraInputTalk format dir_in dir_txt [dir_out] [report]\n"
+		"  SoraInputTalk -{Switches} format dir_in dir_txt [dir_out] [report]\n"
 		"\n"
+		"    Switches:\n"
+		"        c : Add comments to output\n"
 		"    Possible values of format:\n"
 		"        s : ._SN.txt\n"
 		"        p : .py(Not support yet)\n"
@@ -72,6 +74,8 @@ int main(int argc, char* argv[]) {
 			params.push_back(argv[i]);
 		}
 	}
+	bool with_cmt = switches.find('c') != switches.end();
+
 	ERROR_EXIST(params.size() < 3);
 	string fmts = params[0];
 	ERROR_EXIST(fmts.length() != 1);
@@ -146,7 +150,7 @@ int main(int argc, char* argv[]) {
 		tf.ResetPDialogs();
 
 		ofstream ofs_out(dir_out + name + ext);
-		tf.WriteTo(ofs_out);
+		tf.WriteTo(ofs_out, with_cmt);
 		ofs_out.close();
 
 		std::cout << endl;

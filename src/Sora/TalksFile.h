@@ -23,8 +23,8 @@ namespace Sora {
 
 		TalksFile() = default;
 
-		virtual bool WriteTo(std::ostream& os) const { return false; }
-		virtual bool WriteTo(const std::string& filename) const { return false; }
+		virtual bool WriteTo(std::ostream& os, bool with_cmt = false) const { return false; }
+		virtual bool WriteTo(const std::string& filename, bool with_cmt = false) const { return false; }
 
 		void Resort() {
 			TalksT tmp_talks;

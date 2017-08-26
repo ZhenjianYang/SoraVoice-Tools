@@ -16,13 +16,16 @@ namespace Sora {
 		static constexpr char SCPSTR_CODE_CLEAR = '\x03';
 	};
 
+	struct Line {
+		std::string text;
+		std::string cmt;
+	};
 	class Talk;
 	class Dialog {
 		friend class Talk;
 
 	public:
-		using LineT = std::string;
-		using LinesT = std::vector<LineT>;
+		using LinesT = std::vector<Line>;
 		using OPsT = std::vector<OP>;
 
 		int No() const { return no; }
@@ -37,8 +40,8 @@ namespace Sora {
 		int LinesNum() const { return lines.size(); }
 		bool Empty() const { return lines.empty(); }
 
-		LineT& operator[] (int index) { return lines[index]; }
-		const LineT& operator[] (int index) const { return lines[index]; }
+		Line& operator[] (int index) { return lines[index]; }
+		const Line& operator[] (int index) const { return lines[index]; }
 
 		Dialog(Talk& parent, int no, const LinesT& lines = LinesT()) : parent(&parent), no(no), lines(lines) {}
 		Dialog(Talk& parent, int no, LinesT&& lines) : parent(&parent), no(no), lines(std::move(lines)) {}
@@ -92,7 +95,7 @@ namespace Sora {
 	public:
 		Talk(int no, Type type, int chrId = InvalidChrId)
 			: no(no), type(type), chrId(chrId),
-			dialogs({ {*this, 0, {""}} }) {
+			dialogs({ Dialog{*this, 0, Dialog::LinesT{ Line{ } } } }) {
 		}
 
 		bool HasOp(char ch) const {
@@ -118,6 +121,7 @@ namespace Sora {
 				if (p[i] == '#') {
 					if (p[i + 1] == '#') {
 						bytes = p.length() - i;
+						dialogs.back().lines.back().cmt.append(p.c_str() + i + 2);
 						break;
 					}
 					else {
@@ -167,11 +171,11 @@ namespace Sora {
 
 				if (!isSymbol) {
 					if (_flags.newDlg) {
-						dialogs.push_back({ *this, (int)dialogs.size(),{ "" } });
+						dialogs.push_back(Dialog{ *this, (int)dialogs.size(), Dialog::LinesT{ Line{ } } });
 						_flags.newDlg = _flags.newLine = false;
 					}
 					if (_flags.newLine) {
-						dialogs.back().lines.push_back("");
+						dialogs.back().lines.push_back(Line{ });
 						_flags.newLine = false;
 					}
 				}
@@ -179,7 +183,7 @@ namespace Sora {
 				if (op.op && std::find(std::begin(ignore_list), std::end(ignore_list), op.op) == std::end(ignore_list)) {
 					dialogs.back().ops.push_back(op);
 				}
-				for(; bytes > 0;bytes --) dialogs.back().lines.back().push_back(p[i++]);
+				for(; bytes > 0;bytes --) dialogs.back().lines.back().text.push_back(p[i++]);
 			}
 			return true;
 		}

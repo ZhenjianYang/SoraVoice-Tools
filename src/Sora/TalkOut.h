@@ -116,11 +116,11 @@ namespace Sora {
 		static constexpr int InvalidTalkType = Talk::InvalidTalk;
 		static constexpr int InvalidChrId = Talk::InvalidChrId;
 		static const Talk EmptyTalk(-1, Talk::InvalidTalk);
-		static const Dialog EmptyDialog(const_cast<Talk&>(EmptyTalk), -1, { NOT_MATCHED_DIALOG });
-		static const std::string EmptyLine;
+		static const Dialog EmptyDialog(const_cast<Talk&>(EmptyTalk), -1, { { NOT_MATCHED_DIALOG } });
+		static const Line EmptyLine;
 #define ELSE_EMPTY_LINE(output) else output << '\n'
 
-		static inline void OutputTwoPtrDialog(std::ostream& os1, const PtrDialog& pdlg1, std::ostream& os2, const PtrDialog& pdlg2) {
+		static inline void OutputTwoPtrDialog(std::ostream& os1, const PtrDialog& pdlg1, std::ostream& os2, const PtrDialog& pdlg2, bool with_cmt = false) {
 			const Dialog& dlg1 = pdlg1 ? *pdlg1 : EmptyDialog;
 			const Dialog& dlg2 = pdlg2 ? *pdlg2 : EmptyDialog;
 
@@ -175,8 +175,8 @@ namespace Sora {
 				const auto& line1 = j < dlg1.LinesNum() ? dlg1[j] : EmptyLine;
 				const auto& line2 = j < dlg2.LinesNum() ? dlg2[j] : EmptyLine;
 
-				os1 << Sora::Txt::TalkStr2TxtStr(line1) << '\n';
-				os2 << Sora::Txt::TalkStr2TxtStr(line2) << '\n';
+				os1 << Sora::Txt::TalkStr2TxtStr(line1.text) << (with_cmt && !line1.cmt.empty() ? "\t\t\t##" + line1.cmt : "") << '\n';
+				os2 << Sora::Txt::TalkStr2TxtStr(line2.text) << (with_cmt && !line2.cmt.empty() ? "\t\t\t##" + line2.cmt : "") << '\n';
 			}
 		}
 	}

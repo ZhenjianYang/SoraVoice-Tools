@@ -13,7 +13,7 @@ namespace Sora {
 	public:
 		static std::pair<bool, std::string> TxtStr2TalkStr(const std::string& str);
 		static std::string TalkStr2TxtStr(const std::string& str);
-		static void OutputTalk(std::ostream& os, const Talk& talk);
+		static void OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt = false);
 
 	public:
 		Txt(const std::string& filename);
@@ -24,8 +24,8 @@ namespace Sora {
 		Txt(TalksFile &&talksFile) : TalksFile(std::move(talksFile)) { }
 		Txt& operator= (TalksFile &&talksFile) { TalksFile::operator=(std::move(talksFile)); return *this; }
 
-		virtual bool WriteTo(std::ostream& os) const override;
-		virtual bool WriteTo(const std::string& filename) const override;
+		virtual bool WriteTo(std::ostream& os, bool with_cmt = false) const override;
+		virtual bool WriteTo(const std::string& filename, bool with_cmt = false) const override;
 
 	public:
 		Txt(const Txt& _Other) : TalksFile(_Other){ }
