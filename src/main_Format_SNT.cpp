@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	Utils::SearchFiles(dir_snt + "*" ATTR_SNT, fn_snts);
 	for (const auto &fn_snt : fn_snts) {
 		const string name = fn_snt.substr(0, fn_snt.rfind(ATTR_SNT));
-		cout << "处理" << fn_snt << "..." << endl;
+		cout << "Woring with " << fn_snt << "..." << endl;
 
 		ifstream ifs(dir_snt + fn_snt);
 		SoraSNT snt(ifs);
@@ -48,9 +48,11 @@ int main(int argc, char* argv[])
 			const auto& item = snt[i];
 
 			if (item.Type != AllItemTypes::Nomarl) {
+				ofs << ";"
+					<< (snt[i].Type == AllItemTypes::Say ? "ChrTalk" :
+						snt[i].Type == AllItemTypes::Talk ? "NpcTalk" : "AnonymousTalk")
+					<< " #"  << cnt_talk;
 				cnt_talk++;
-				ofs << ";" << snt[i].Type->Mark
-					<< setfill('0') << setw(4) << setiosflags(ios::right) << cnt_talk;
 
 				bool has_opA = false;
 				bool has_opW = false;

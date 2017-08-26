@@ -80,6 +80,16 @@ void Sora::Txt::OutputTalk(std::ostream& os, const Talk& talk) {
 	os << ";----------------------------------------------------------------------------------\n";
 	os << '\n';
 
+	bool op5 = talk.HasOp('\x5');
+	bool opA = talk.HasOp('A');
+
+	if (op5 || opA) {
+		os << ";";
+		if (opA) os << " op#A";
+		if (op5) os << " op#5";
+		os << '\n';
+	}
+
 	os << Talk::Str_TalkTypes[talk.GetType()] << " #"
 		<< std::dec << talk.No() << '\n';
 

@@ -70,7 +70,7 @@ namespace Sora {
 		using DialogsT = std::vector<Dialog>;
 		static constexpr int InvalidChrId = 0x80000000;
 
-		static constexpr char Dft_Ignore_List_A[] = { '\x05', 'J', 'V', 'v', 'B', 'R', 'I' };
+		static constexpr char Dft_Ignore_List_A[] = { 'J', 'V', 'v', 'B', 'R', 'I' };
 
 		int No() const { return no; }
 		Type GetType() const { return type; }
@@ -93,6 +93,15 @@ namespace Sora {
 		Talk(int no, Type type, int chrId = InvalidChrId)
 			: no(no), type(type), chrId(chrId),
 			dialogs({ {*this, 0, {""}} }) {
+		}
+
+		bool HasOp(char ch) const {
+			for (const auto& dlg : this->dialogs) {
+				for (const auto& op : dlg.Ops()) {
+					if (op.op == ch) return true;
+				}
+			}
+			return false;
 		}
 
 		template<typename IgnoreList = decltype(Dft_Ignore_List_A)>

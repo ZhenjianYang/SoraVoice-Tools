@@ -105,10 +105,6 @@ int main(int argc, char* argv[]) {
 			system("pause");
 			continue;
 		}
-		if (tf.Talks().empty()) {
-			std::cout << "No talks, Skip." << endl;
-			continue;
-		}
 
 		int cnt_ipt = 0;
 		int cnt_npt = 0;
@@ -118,7 +114,11 @@ int main(int argc, char* argv[]) {
 		const string fn_txt = name + ATTR_TXT;
 		auto ptf_txt = !dir_txt.empty() ? getTalksFile(dir_txt + fn_txt, 't') : std::make_unique<TalksFile>();
 		if (!ptf_txt->ErrMsg().empty()) {
-			ss_err << "    [Error]Txt file: " << ptf_txt->ErrMsg() << '\n';
+			if(ptf_txt->ErrMsg() != "Open file failed.")
+				ss_err << "    [Error]Txt file: " << ptf_txt->ErrMsg() << '\n';
+			else {
+				cout << "Txt file not exists.";
+			}
 			ptf_txt = std::make_unique<TalksFile>();
 		}
 
