@@ -15,6 +15,7 @@
 #include <conio.h>
 
 #define ATTR_SNT "._SN.txt"
+#define ATTR_PY ".py"
 #define ATTR_MBIN ".mbin"
 #define ATTR_TXT ".txt"
 
@@ -32,6 +33,7 @@ static inline void printUsage() {
 		"                     (If format2 isn't assigned, only output from dir_in_1)\n"
 		"         Possible values of format1 and format2:\n"
 		"             s : ._SN.txt\n"
+		"             p : .py(Not support yet)\n"
 		"             m : .mbin\n"
 		"             t : .txt (same format with output files)\n"
 		"\n"
@@ -63,6 +65,7 @@ static inline const char* getExt(char fmt) {
 	switch (fmt)
 	{
 	case 's':return ATTR_SNT;
+	case 'p':return nullptr;
 	case 'm':return ATTR_MBIN;
 	case 't':return ATTR_TXT;
 	default: return nullptr;
@@ -73,6 +76,7 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	switch (fmt)
 	{
 	case 's':return make_unique<Sora::Snt>(fileName);
+	case 'p':return nullptr;
 	case 'm':return make_unique<Sora::MBin>(fileName);
 	case 't':return make_unique<Sora::Txt>(fileName);
 	default: return nullptr;
