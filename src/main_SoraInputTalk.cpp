@@ -8,6 +8,7 @@
 
 #include <Sora/MBin.h>
 #include <Sora/Snt.h>
+#include <Sora/Py.h>
 #include <Sora/Txt.h>
 #include <Sora/TalkOut.h>
 #include <Sora/Encode.h>
@@ -34,7 +35,7 @@ static inline void printUsage() {
 		"        c : Add comments to output\n"
 		"    Possible values of format:\n"
 		"        s : ._SN.txt\n"
-		"        p : .py(Not support yet)\n"
+		"        p : .py\n"
 		"    Default:\n"
 		"        dir_out = dir_in.out\n"
 		"        report = " DFT_REPORT_NAME "\n"
@@ -47,7 +48,7 @@ static inline const char* getExt(char fmt) {
 	switch (fmt)
 	{
 	case 's':return ATTR_SNT;
-	case 'p':return nullptr;
+	case 'p':return ATTR_PY;
 	default: return nullptr;
 	}
 }
@@ -56,7 +57,7 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	switch (fmt)
 	{
 	case 's':return make_unique<Sora::Snt>(fileName);
-	case 'p':return nullptr;
+	case 'p':return make_unique<Sora::Py>(fileName);;
 	case 't':return make_unique<Sora::Txt>(fileName);
 	default: return nullptr;
 	}

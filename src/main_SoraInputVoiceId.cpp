@@ -226,25 +226,26 @@ static inline bool HasOpA5(const string& str) {
 
 	i = 0;
 	while (i < str.length()) {
-		while (i < str.length() && (str[i] != '\\' || str[i + 1] != 'x')) i++;
-		if (i >= str.length()) break;
+		while (i + 4 < str.length() && !(str[i] == '[' && str[i + 1] == 'x' && str[i + 4] == ']')) i++;
+		if (i + 4 >= str.length()) break;
 
 		int hv = 0;
 		i+= 2;
-		for (int j = 0; j < 2; j++, i++) {
+		for (int j = 0; j < 2; j++) {
 			hv <<= 4;
-			if (str[i] >= '0' && str[i] <= '9') hv += str[i] - '0';
-			else if (str[i] >= 'a' && str[i] <= 'f') hv += str[i] - 'a' + 10;
-			else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'A' + 10;
+			if (str[i + j] >= '0' && str[i + j] <= '9') hv += str[i + j] - '0';
+			else if (str[i + j] >= 'a' && str[i + j] <= 'f') hv += str[i + j] - 'a' + 10;
+			else if (str[i + j] >= 'A' && str[i + j] <= 'F') hv += str[i + j] - 'A' + 10;
 			else { hv = 0; break; };
 		}
+		i += 5;
 
 		if (hv == 5) return true;
 		else if (hv == Sora::OP::SCPSTR_CODE_ITEM) {
-			i += 2 * 4;
+			i += 2 * 5;
 		}
 		else if (hv == Sora::OP::SCPSTR_CODE_COLOR) {
-			i += 1 * 4;
+			i += 1 * 5;
 		}
 	}
 	return false;

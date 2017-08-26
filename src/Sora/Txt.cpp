@@ -24,7 +24,7 @@ std::pair<bool, std::string> Sora::Txt::TxtStr2TalkStr(const std::string& str) {
 
 	size_t i = 0;
 	while (i < str.length()) {
-		if (str[i] == '\\' && str[i + 1] == 'x') {
+		if (i + 4 < str.length() && str[i] == '[' && str[i + 1] == 'x' && str[i + 4] == ']') {
 			i += 2;
 			int hv = 0;
 			for (int j = 0; j < 2; j++, i++) {
@@ -34,6 +34,7 @@ std::pair<bool, std::string> Sora::Txt::TxtStr2TalkStr(const std::string& str) {
 				else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'A' + 10;
 				else return rst = { false, "" };
 			}
+			i++;
 			rst.second.push_back(hv);
 		}
 		else {
@@ -50,17 +51,17 @@ std::string Sora::Txt::TalkStr2TxtStr(const std::string& str) {
 	using byte = unsigned char;
 	while (i < str.length()) {
 		if (str[i] == OP::SCPSTR_CODE_ITEM) {
-			std::sprintf(buff, "\\x%02X\\x%02X\\x%02X", (byte)str[i], (byte)str[i + 1], (byte)str[i + 2]);
+			std::sprintf(buff, "[x%02X][x%02X][x%02X]", (byte)str[i], (byte)str[i + 1], (byte)str[i + 2]);
 			rst.append(buff);
 			i += 3;
 		}
 		else if (str[i] == OP::SCPSTR_CODE_COLOR) {
-			std::sprintf(buff, "\\x%02X\\x%02X", (byte)str[i], (byte)str[i + 1]);
+			std::sprintf(buff, "[x%02X][x%02X]", (byte)str[i], (byte)str[i + 1]);
 			rst.append(buff);
 			i += 2;
 		}
 		else if (str[i] >= 0 && str[i] < 0x20) {
-			std::sprintf(buff, "\\x%02X", (byte)str[i]);
+			std::sprintf(buff, "[x%02X]", (byte)str[i]);
 			rst.append(buff);
 			i += 1;
 		}
@@ -131,7 +132,7 @@ int Sora::Txt::Create(std::istream& is) {
 	const vector<string> str_types {Talk::Str_TalkTypes,  Talk::Str_TalkTypes + Talk::NumTalkTypes};
 
 	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
-		string s(line_no == 0 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
+		string s(line_no == 1 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
 
 		if(s.empty()) continue;
 		if(s[0] == '\t' || s[0] == ';') continue;

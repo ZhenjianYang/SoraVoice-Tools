@@ -179,7 +179,7 @@ int Sora::Snt::Create(std::istream & is)
 	int no = 0;
 	for (int line_no = 1; is.getline(buff, sizeof(buff)); line_no++) {
 
-		string s(line_no == 0 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
+		string s(line_no == 1 && buff[0] == '\xEF' && buff[1] == '\xBB' && buff[2] == '\xBF' ? buff + 3 : buff);
 		size_t is = 0;
 
 		if (talks_id == InvalidTalkId && (s[0] == ';' || s.find(".def") == 0)) {

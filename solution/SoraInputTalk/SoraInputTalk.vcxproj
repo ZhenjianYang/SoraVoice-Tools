@@ -49,6 +49,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\main_SoraInputTalk.cpp" />
     <ClCompile Include="..\..\src\Sora\MBin.cpp" />
+    <ClCompile Include="..\..\src\Sora\Py.cpp" />
     <ClCompile Include="..\..\src\Sora\Snt.cpp" />
     <ClCompile Include="..\..\src\Sora\Txt.cpp" />
     <ClCompile Include="..\..\src\Utils\Files.cpp" />
@@ -56,6 +57,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\Sora\Encode.h" />
     <ClInclude Include="..\..\src\Sora\MBin.h" />
+    <ClInclude Include="..\..\src\Sora\Py.h" />
     <ClInclude Include="..\..\src\Sora\Snt.h" />
     <ClInclude Include="..\..\src\Sora\Talk.h" />
     <ClInclude Include="..\..\src\Sora\TalkOut.h" />

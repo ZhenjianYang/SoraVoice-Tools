@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\src\Sora\Txt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Sora\Py.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Utils\Files.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Sora\Encode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Sora\Py.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
