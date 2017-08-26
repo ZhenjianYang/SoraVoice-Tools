@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		auto &tf_txt = *ptf_txt;
+		tf_txt.Resort();
 		for (auto& talk : tf_txt.Talks()) {
 			if (talk.No() < 0 || talk.GetType() == Talk::InvalidTalk) continue;
 
