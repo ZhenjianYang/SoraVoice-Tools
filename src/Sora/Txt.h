@@ -19,36 +19,6 @@ namespace Sora {
 		Txt(const std::string& filename);
 		Txt(std::istream& is);
 
-		template<typename TalksContainer>
-		Txt(const TalksContainer &talks) : TalksFile() {
-			this->talks.reserve(std::size(talks));
-			for (const auto& talk : talks) {
-				this->talks.push_back(talk);
-			}
-			this->ResetPDialogs();
-		}
-		template<typename TalksContainer>
-		Txt& operator=(const TalksContainer &talks) {
-			this->talks.clear();
-			this->talks.reserve(std::size(talks));
-			for (const auto& talk : talks) {
-				this->talks.push_back(talk);
-			}
-			this->err.clear();
-			this->ResetPDialogs();
-			return *this;
-		}
-		Txt(TalksT &&talks) : TalksFile() {
-			this->talks = std::move(talks);
-			this->ResetPDialogs();
-		}
-		Txt& operator=(TalksT &&talks) {
-			this->talks = std::move(talks);
-			this->err.clear();
-			this->ResetPDialogs();
-			return *this;
-		}
-
 		Txt(const TalksFile &talksFile) : TalksFile(talksFile) { }
 		Txt& operator= (const TalksFile &talksFile) { TalksFile::operator=(talksFile); return *this; }
 		Txt(TalksFile &&talksFile) : TalksFile(std::move(talksFile)) { }

@@ -126,10 +126,12 @@ namespace Sora {
 			return alg::seq_align(std::begin(dialogsA), std::end(dialogsA), std::begin(dialogsB), std::end(dialogsB), JudgePtrDialog);
 		}
 
+		static const std::string NOT_MATCHED_DIALOG = ";NOT_MATCHED_DIALOG";
+		static const std::string NOT_MATCHED_TALK = ";NOT_MATCHED_TALK";
 		static constexpr int InvalidTalkType = Talk::InvalidTalk;
 		static constexpr int InvalidChrId = Talk::InvalidChrId;
 		static const Talk EmptyTalk(-1, Talk::InvalidTalk);
-		static const Dialog EmptyDialog(const_cast<Talk&>(EmptyTalk), -1, { ";INVALID_DIALOG" });
+		static const Dialog EmptyDialog(const_cast<Talk&>(EmptyTalk), -1, { NOT_MATCHED_DIALOG });
 		static const std::string EmptyLine;
 #define ELSE_EMPTY_LINE(output) else output << '\n'
 		static inline void OutputTwoTalks(std::ostream& os1, const Talk& talk1, std::ostream& os2, const Talk& talk2) {
@@ -142,10 +144,10 @@ namespace Sora {
 
 			if (talk1.GetType() != InvalidTalkType)os1 << Talk::Str_TalkTypes[talk1.GetType()] << " #"
 				<< std::dec << talk1.No() << '\n';
-			else os1 << ";INVALID_TALK\n";
+			else os1 << NOT_MATCHED_TALK << "\n";
 			if (talk2.GetType() != InvalidTalkType) os2 << Talk::Str_TalkTypes[talk2.GetType()] << " #"
 				<< std::dec << talk2.No() << '\n';
-			else os2 << ";INVALID_TALK\n";
+			else os2 << NOT_MATCHED_TALK << "\n";
 
 			if (talk1.ChrId() != InvalidChrId || talk2.ChrId() != InvalidChrId) {
 				if (talk1.ChrId() != InvalidChrId) os1 << "0x" << std::hex << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
