@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 	string prep = params.size() > 3 ? params[3] : DFT_REPORT_NAME;
 
 	dir1.push_back('\\');
-	if(!dir2.empty()) dir2.push_back('\\');
+	dir2.push_back('\\');
 	dir_out.push_back('\\');
 	Utils::MakeDirectory(dir_out);
 
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "Working with " << fn << "..." << flush;
 
 		ifstream if1(dir1 + fn);
-		ifstream if2; if(!dir2.empty()) if2.open(dir2 + fn);
+		ifstream if2(dir2 + fn);
 
 		stringstream ss_new;
 		stringstream ss_err;
@@ -259,10 +259,10 @@ int main(int argc, char* argv[]) {
 				if (!vids.empty()) {
 					auto it = vid_map.find(vids[0]);
 					if (it != vid_map.end()) {
-						s = "#" + it->second + 'v' + s;
+						s = "#" + it->second + "v" + s;
 					}
 					else {
-						s = "#" + vids[0] + 'v' + s;
+						s = "#" + vids[0] + "v" + s;
 					}
 					cnt++;
 				}
