@@ -11,7 +11,10 @@
 #include <Sora/TalkOut.h>
 #include <Sora/Encode.h>
 #include <Utils/Files.h>
+#include <Utils/Decoder_Ogg.h>
 #include <mapping.h>
+
+#include <Windows.h>
 
 #include <conio.h>
 
@@ -21,6 +24,7 @@
 #define ATTR_TXT ".txt"
 
 #define DFT_REPORT_NAME "report.txt"
+#define VPATH "vpath.txt"
 
 static constexpr int MAXCH_ONELINE = 10000;
 
@@ -30,9 +34,13 @@ using namespace Sora;
 static inline void printUsage() {
 	std::cout << "Usage:\n"
 		"\n"
-		"  SoraMergeTalk [-m] dir_txt1 dir_txt2 [dir_out] [report]\n"
+		"  SoraInputVoiceId -{Switches} dir_txt1 dir_txt2 [dir_out] [report]\n"
 		"\n"
-		"    -m     : Enable voice id mapping.\n"
+		"    Switches:"
+		"        m : Enable voice id mapping\n"
+		"        l : Add voice length for op#A and op#5\n"
+//		"        L : Add voice length for all voices\n"
+		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
 		"\n"
 		"    Default:\n"
 		"        dir_out = dir_txt1.out\n"
@@ -78,6 +86,7 @@ static auto GetVoiceId(const string& str) {
 		while (i < str.length() && str[i] != '#') i++;
 		if (i >= str.length()) break;
 		i++;
+		if (str[i] == '#') break;
 		string tmp;
 		while (str[i] >= '0' && str[i] <= '9') tmp.push_back(str[i++]);
 		if (str[i] == 'V' || str[i] == 'v') rst.push_back(tmp);
@@ -120,6 +129,127 @@ static inline int GetChrID(const string& str) {
 	return chrId;
 }
 
+static vector<string> vpaths;
+static HMODULE ogg_dll = NULL;
+
+static bool InitOgg() {
+	ifstream ifsvp(VPATH);
+	string s;
+	char buff[1024];
+
+	while (ifsvp.getline(buff, sizeof(buff))) {
+		vpaths.push_back(buff);
+	}
+	ifsvp.close();
+
+	if (vpaths.empty()) {
+		cout << "No paths found in " VPATH ", Exit." << endl;
+		return false;
+	}
+
+	constexpr char STR_ov_open_callbacks[] = "ov_open_callbacks";
+	constexpr char STR_ov_info[] = "ov_info";
+	constexpr char STR_ov_read[] = "ov_read";
+	constexpr char STR_ov_clear[] = "ov_clear";
+	constexpr char STR_ov_pcm_total[] = "ov_pcm_total";
+	constexpr char STR_vorbisfile_dll[] = "vorbisfile.dll";
+	constexpr char STR_DIR[] = "dll";
+
+	SetDllDirectoryA(STR_DIR);
+	ogg_dll = LoadLibraryA(STR_vorbisfile_dll);
+	if (!ogg_dll) {
+		cout << "Load ogg's libraries failed. exit." << endl;
+		return false;
+	}
+	if (ogg_dll) {
+		void* ov_open_callbacks = (void*)GetProcAddress(ogg_dll, STR_ov_open_callbacks);
+		void* ov_info = (void*)GetProcAddress(ogg_dll, STR_ov_info);
+		void* ov_read = (void*)GetProcAddress(ogg_dll, STR_ov_read);
+		void* ov_clear = (void*)GetProcAddress(ogg_dll, STR_ov_clear);
+		void* ov_pcm_total = (void*)GetProcAddress(ogg_dll, STR_ov_pcm_total);
+
+		if (!ov_open_callbacks || !ov_info || !ov_read || !ov_clear || !ov_pcm_total) {
+			cout << "Load ogg's apis failed. exit." << endl;
+			FreeLibrary(ogg_dll);
+			ogg_dll = NULL;
+			return false;
+		}
+
+		Ogg::SetOggApis(ov_open_callbacks, ov_info, ov_read, ov_clear, ov_pcm_total);
+	}
+
+	return true;
+}
+
+static string GetStrVlen(const string vid) {
+	static auto ogg = Ogg::ogg;
+
+	string voice_id = vid;
+	if (vid.length() <= MAX_VOICEID_LEN_NEED_MAPPING) {
+		int i_vid = 0;
+		for(char c : vid) {
+			if (c < '0' || c > '9') return "";
+			i_vid *= 10; i_vid += c - '0';
+		}
+		i_vid += VoiceIdAdjustAdder[vid.length()];
+		if (i_vid >= NUM_MAPPING) {
+			return "";
+		}
+		voice_id = VoiceIdMapping[i_vid];
+	}
+	char buff[24];
+	for (const auto& vp : vpaths) {
+		string p = vp + "\\ch" + voice_id + ".ogg";
+		if (!ogg->Open(p.c_str())) return "";
+
+		int vlen = ogg->SamplesTotal() * 1000 / ogg->WaveFormat.nSamplesPerSec;
+		ogg->Close();
+
+		if (vlen > 0x3FFFF) vlen = 0x3FFFF;
+		sprintf(buff, "vlen=%d,0x%04X", vlen, vlen);
+		return buff;
+	}
+	return "";
+}
+
+static inline bool HasOpA5(const string& str) {
+	size_t i = 0;
+	while (i < str.length()) {
+		while (i < str.length() && str[i] != '#') i++;
+		if (i >= str.length()) break;
+		i++;
+		if (str[i + 1] == '#') break;
+		string tmp;
+		while (str[i] >= '0' && str[i] <= '9') i++;
+		if (str[i] == 'A') return true;
+	}
+
+	i = 0;
+	while (i < str.length()) {
+		while (i < str.length() && (str[i] != '\\' || str[i + 1] != 'x')) i++;
+		if (i >= str.length()) break;
+
+		int hv = 0;
+		i+= 2;
+		for (int j = 0; j < 2; j++, i++) {
+			hv <<= 4;
+			if (str[i] >= '0' && str[i] <= '9') hv += str[i] - '0';
+			else if (str[i] >= 'a' && str[i] <= 'f') hv += str[i] - 'a' + 10;
+			else if (str[i] >= 'A' && str[i] <= 'F') hv += str[i] - 'A' + 10;
+			else { hv = 0; break; };
+		}
+
+		if (hv == 5) return true;
+		else if (hv == Sora::OP::SCPSTR_CODE_ITEM) {
+			i += 2 * 4;
+		}
+		else if (hv == Sora::OP::SCPSTR_CODE_COLOR) {
+			i += 1 * 4;
+		}
+	}
+	return false;
+}
+
 int main(int argc, char* argv[]) {
 	unordered_set<char> switches;
 	vector<string> params;
@@ -134,6 +264,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	bool enable_mapping = switches.find('m') != switches.end();
+	bool vlenA5 = switches.find('l') != switches.end();
+	bool vlenAll = false; //switches.find('L') != switches.end();
+
+	if (vlenA5 || vlenAll) {
+		if (!InitOgg()) return -1;
+	}
 
 	string dir1 = params[0]; while (!dir1.empty() && (dir1.back() == '\\' || dir1.back() == '/')) dir1.pop_back();
 	string dir2 = params[1];
@@ -179,6 +315,7 @@ int main(int argc, char* argv[]) {
 		};
 
 		int cnt = 0;
+		string lst_vid;
 		for (int line_no = 1; if1.getline(buf1, sizeof(buf1)); line_no++) {
 			string s(line_no == 0 && buf1[0] == '\xEF' && buf1[1] == '\xBB' && buf1[2] == '\xBF' ? buf1 + 3 : buf1);
 			string s2;
@@ -207,6 +344,8 @@ int main(int argc, char* argv[]) {
 					if (GetType(s2) == Talk::InvalidTalk && !IsEmptyLine(s2)) {
 						ss_err << "    [Wanning]TXT1, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
 					}
+
+					lst_vid.clear();
 				}
 			}
 			if (lt == LineType::None && type == Talk::InvalidTalk) {
@@ -265,7 +404,28 @@ int main(int argc, char* argv[]) {
 						s = "#" + vids[0] + "v" + s;
 					}
 					cnt++;
+
+					if (vlenAll) {
+						auto str_vlen = GetStrVlen(vids[0]);
+						if (!str_vlen.empty()) {
+							str_vlen = "\t\t\t## " + str_vlen;
+						}
+						s.append(str_vlen);
+					}
+					else if(vlenA5) {
+						lst_vid = vids[0];
+					}
 				}
+
+				if (!lst_vid.empty() && HasOpA5(s)) {
+					auto str_vlen = GetStrVlen(lst_vid);
+					if (!str_vlen.empty()) {
+						str_vlen = "\t\t\t## " + str_vlen;
+					}
+					s.append(str_vlen);
+					lst_vid.clear();
+				}
+				if (s.find("\\x02") != string::npos) lst_vid.clear();
 			}
 
 			ss_new << s << '\n';
@@ -299,6 +459,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	ofs_rep.close();
+	if (ogg_dll) {
+		FreeLibrary(ogg_dll);
+	}
 	if (has_err) {
 		cout << "Wannings/Errors found, check " << prep << " for details" << endl;
 		system("pause");

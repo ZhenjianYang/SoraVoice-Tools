@@ -35,7 +35,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraOutputTalk", "SoraOutpu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraInputTalk", "SoraInputTalk\SoraInputTalk.vcxproj", "{5467376F-65D9-4FCA-964E-6C0B71549457}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraMergeTalk", "SoraMergeTalk\SoraMergeTalk.vcxproj", "{51F14935-7DAD-4C40-8DEB-997134795CCD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraInputVoiceId", "SoraInputVoiceId\SoraInputVoiceId.vcxproj", "{51F14935-7DAD-4C40-8DEB-997134795CCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
