@@ -73,7 +73,7 @@ namespace Sora {
 		using DialogsT = std::vector<Dialog>;
 		static constexpr int InvalidChrId = 0x80000000;
 
-		static constexpr char Dft_Ignore_List_A[] = { 'J', 'V', 'v', 'B', 'R', 'I' };
+		static constexpr char Dft_Ignore_List_A[] = { 'J', 'V', 'v', 'B', 'R', 'I', 'Z' };
 
 		int No() const { return no; }
 		Type GetType() const { return type; }
@@ -113,8 +113,6 @@ namespace Sora {
 
 			size_t i = 0;
 			while (i < p.length()) {
-				if (p[i] == '\t') { i++; continue; }
-
 				int bytes = 1;
 				OP op{ 0, 0 };
 				bool isSymbol = false;

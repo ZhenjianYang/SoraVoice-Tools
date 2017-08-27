@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
 		auto ptf1 = getTalksFile(dir1 + fn1, fmt1);
 		const auto& tf1 = *ptf1;
 		if (!tf1.ErrMsg().empty()) {
-			std::cout << tf1.ErrMsg() << endl;
+			std::cout << fn1 << ": " << tf1.ErrMsg() << endl;
 			system("pause");
 			continue;
 		}
@@ -174,12 +174,11 @@ int main(int argc, char* argv[]) {
 
 		const string fn2 = name + ext2;
 		auto ptf2 = getTalksFile(dir2 + fn2, fmt2);
-		const auto &tf2 = *ptf2;
-		if (!tf2.ErrMsg().empty()) {
-			std::cout << tf2.ErrMsg() << endl;
-			system("pause");
-			continue;
+		if (!ptf2->ErrMsg().empty()) {
+			std::cout << fn2 << ": " << ptf2->ErrMsg() << endl;
+			ptf2 = make_unique<TalksFile>();
 		}
+		const auto &tf2 = *ptf2;
 
 		if (tf1.Talks().empty() && tf2.Talks().empty()) {
 			std::cout << "No talks, Skip." << endl;

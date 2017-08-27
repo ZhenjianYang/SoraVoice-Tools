@@ -82,10 +82,13 @@ std::pair<bool, std::string> Sora::Snt::SntStr2TalkStr(const std::string& str) {
 			i = right + 2;
 		}
 		else {
-			int len = GetChCountFun(str.c_str() + i);
-			while (len > 0) {
-				rst.second.push_back(str[i++]);
-				len--;
+			if (str[i] == '\t') i++;
+			else {
+				int len = GetChCountFun(str.c_str() + i);
+				while (len > 0) {
+					rst.second.push_back(str[i++]);
+					len--;
+				}
 			}
 		}
 	}

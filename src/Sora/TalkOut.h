@@ -134,7 +134,7 @@ namespace Sora {
 				auto spop_str1 = dlg1.No() == 0 ? GetSpOpStr(talk1) : "";
 				auto spop_str2 = dlg2.No() == 0 ? GetSpOpStr(talk2) : "";
 
-				std::string empty = "\n\n";
+				std::string empty = "\n\n\n\n";
 				if (!spop_str1.empty() || !spop_str2.empty()) {
 					empty.push_back('\n');
 					spop_str1.push_back('\n');
@@ -159,8 +159,8 @@ namespace Sora {
 				else os2 << empty;
 
 				if (talk1.ChrId() != InvalidChrId || talk2.ChrId() != InvalidChrId) {
-					if (talk1.ChrId() != InvalidChrId && dlg1.No() == 0) os1 << "0x" << std::hex << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
-					if (talk2.ChrId() != InvalidChrId && dlg2.No() == 0) os2 << "0x" << std::hex << talk2.ChrId() << '\n'; ELSE_EMPTY_LINE(os2);
+					if (talk1.ChrId() != InvalidChrId && dlg1.No() == 0) os1 << "0x" << std::hex << std::uppercase << talk1.ChrId() << '\n'; ELSE_EMPTY_LINE(os1);
+					if (talk2.ChrId() != InvalidChrId && dlg2.No() == 0) os2 << "0x" << std::hex << std::uppercase << talk2.ChrId() << '\n'; ELSE_EMPTY_LINE(os2);
 				}
 
 				if (talk1.GetType() == Talk::NpcTalk || talk2.GetType() == Talk::NpcTalk) {

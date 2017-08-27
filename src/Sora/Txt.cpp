@@ -38,7 +38,8 @@ std::pair<bool, std::string> Sora::Txt::TxtStr2TalkStr(const std::string& str) {
 			rst.second.push_back(hv);
 		}
 		else {
-			rst.second.push_back(str[i++]);
+			if(str[i] != '\t') rst.second.push_back(str[i]);
+			i++;
 		}
 	}
 	return rst;
