@@ -105,10 +105,42 @@ bool GetDX9() {
 	IDirect3D9* pD3D = pDirect3DCreate9(D3D_SDK_VERSION);
 	ERROR_EXIT(!pD3D);
 
+	D3DCAPS9 caps;
+	pD3D->lpVtbl->GetDeviceCaps(pD3D, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &caps);
+	int vp = 0;
+	if (caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT) {
+		vp = D3DCREATE_HARDWARE_VERTEXPROCESSING;
+	}
+	else {
+		vp = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+	}
+
+	D3DPRESENT_PARAMETERS d3dpp;
+	d3dpp.BackBufferWidth = 640;
+	d3dpp.BackBufferHeight = 480;
+	d3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	d3dpp.MultiSampleQuality = 0;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = GetHwnd();
+	d3dpp.Windowed = true;
+	d3dpp.EnableAutoDepthStencil = true;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	d3dpp.Flags = 0;
+	d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	IDirect3DDevice9* pD3DD = NULL;
+	pD3D->lpVtbl->CreateDevice(pD3D, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetHwnd(), vp, &d3dpp, &pD3DD);
+	ERROR_EXIT(!pD3DD);
+
 	printf("Direct3DCreate9 : d3d9.dll+%08X\n", (unsigned)pDirect3DCreate9 - (unsigned)md_d3d9);
 	printf("IDirect3D9::CreateDevice : d3d9.dll+%08X\n", (unsigned)pD3D->lpVtbl->CreateDevice - (unsigned)md_d3d9);
+	printf("IDirect3DDevice9::Present : d3d9.dll+%08X\n", (unsigned)pD3DD->lpVtbl->Present - (unsigned)md_d3d9);
 	printf("\n");
 
+	pD3DD->lpVtbl->Release(pD3DD);
 	pD3D->lpVtbl->Release(pD3D);
 	FreeLibrary(md_d3d9);
 
