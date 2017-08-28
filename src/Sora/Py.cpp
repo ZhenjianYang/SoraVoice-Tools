@@ -244,9 +244,33 @@ int Sora::Py::Create(std::istream & is)
 }
 
 bool Sora::Py::WriteTo(std::ostream& os, bool with_cmt) const {
+	bool out_no = true;
+	bool opA = false;
+	bool op5 = false;
 	for(const auto& line : lines) {
-		if(line.lineNo > 0) os << line.content << '\n';
-		else OutputTalk(os, talks[-line.lineNo], with_cmt);
+		if (line.lineNo > 0) {
+			if (opA || op5) {
+				if (line.content.length() < 5 || line.content[4] != '#') {
+					os << SPACE "#"
+						<< (opA ? " op#A" : "")
+						<< (op5 ? " op#5" : "") << '\n';
+				}
+				opA = op5 = false;
+			}
+
+			os << line.content << '\n';
+			out_no = line.content.length() < 5 || line.content[4] != '#';
+		}
+		else {
+			if (talks[-line.lineNo].No() < 0 || talks[-line.lineNo].GetType() == Talk::InvalidTalk) continue;
+
+			if (out_no) {
+				os << SPACE "#" << talks[-line.lineNo].No() << '\n';
+			}
+			OutputTalk(os, talks[-line.lineNo], with_cmt);
+			opA = talks[-line.lineNo].HasOp('A');
+			op5 = talks[-line.lineNo].HasOp('\x5');
+		}
 	}
 	os << std::flush;
 

@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 		}
 		tf.ResetPDialogs();
 
-		ofstream ofs_out(dir_out + name + ext);
+		ofstream ofs_out(dir_out + fn_in);
 		tf.WriteTo(ofs_out, with_cmt);
 		ofs_out.close();
 
