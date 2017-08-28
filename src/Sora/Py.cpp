@@ -79,8 +79,6 @@ std::string Sora::Py::TalkStr2PyStr(const std::string& str) {
 }
 
 void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
-	using byte = unsigned char;
-
 	os << SPACE << Talk::Str_TalkTypes[talk.GetType()] << "(\n";
 	if (talk.GetType() != Talk::AnonymousTalk) {
 		os << SPACE SPACE << "0x" << hex << uppercase << talk.ChrId() << ",\n";
@@ -124,7 +122,6 @@ int Sora::Py::Create(std::istream & is)
 	pDialogs.clear();
 
 	char buff[MAXCH_ONELINE + 1];
-	constexpr auto InvalidTalkId = Talk::Type::InvalidTalk;
 	int no = 0;
 
 	constexpr int len_space = sizeof(SPACE) - 1;
@@ -157,7 +154,6 @@ int Sora::Py::Create(std::istream & is)
 
 				bool chrId_got = false;
 				bool name_got = type != Talk::NpcTalk;
-				bool text_got = true;
 
 				while(true) {
 					line_no++;

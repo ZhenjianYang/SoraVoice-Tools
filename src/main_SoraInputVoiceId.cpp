@@ -66,7 +66,7 @@ static auto GetVoiceIdMap() {
 	char buff_vid[buff_len + 1];
 
 	for (int vid_len = MAX_VOICEID_LEN_NEED_MAPPING; vid_len > 0; vid_len--) {
-		for (int i = VoiceIdAdjustAdder[vid_len]; i < VoiceIdAdjustAdder[vid_len - 1] && i < NUM_MAPPING; i++) {
+		for (int i = VoiceIdAdjustAdder[vid_len]; i < VoiceIdAdjustAdder[vid_len - 1] && i < (int)NUM_MAPPING; i++) {
 			if (VoiceIdMapping[i][0]) {
 				sprintf(buff_vid, "%07d", i - VoiceIdAdjustAdder[vid_len]);
 				string vid_ori = VoiceIdMapping[i];
@@ -186,7 +186,7 @@ static string GetStrVlen(const string vid) {
 
 	string voice_id = vid;
 	if (vid.length() <= MAX_VOICEID_LEN_NEED_MAPPING) {
-		int i_vid = 0;
+		unsigned i_vid = 0;
 		for(char c : vid) {
 			if (c < '0' || c > '9') return "";
 			i_vid *= 10; i_vid += c - '0';

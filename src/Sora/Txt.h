@@ -1,7 +1,6 @@
 #pragma once
 
 #include "TalksFile.h"
-#include "Encode.h"
 
 #include <string>
 #include <istream>
