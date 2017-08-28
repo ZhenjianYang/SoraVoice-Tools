@@ -80,16 +80,32 @@ static auto GetVoiceIdMap() {
 }
 
 static auto GetVoiceId(const string& str) {
-	vector<string> rst;
+	pair<bool, vector<string>> rst{false, {}};
 	size_t i = 0;
+	bool text = false;
 	while (i < str.length()) {
-		while (i < str.length() && str[i] != '#') i++;
+		while (i < str.length() && str[i] != '#') {
+			if(i + 4 < str.length() && str[i] == '[' && str[i + 1] == 'x' && str[i + 4] == ']') {
+				i += 5;
+			} else {
+				if(str[i] != '\t') {
+					text = true;
+				}
+				i++;
+			}
+		}
 		if (i >= str.length()) break;
 		i++;
 		if (str[i] == '#') break;
 		string tmp;
 		while (str[i] >= '0' && str[i] <= '9') tmp.push_back(str[i++]);
-		if (str[i] == 'V' || str[i] == 'v') rst.push_back(tmp);
+		if (str[i] == 'V' || str[i] == 'v') {
+			rst.second.push_back(tmp);
+			if(text) {
+				rst.first = true;
+			}
+		}
+		if((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')) i++;
 	}
 	return rst;
 }
@@ -378,7 +394,8 @@ int main(int argc, char* argv[]) {
 			}
 
 			if (lt != LineType::None) {
-				auto vids = GetVoiceId(s2);
+				auto vid_rst = GetVoiceId(s2);
+				const auto& vids = vid_rst.second;
 				if (!vids.empty() && !std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
 					ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
 				}
@@ -391,7 +408,11 @@ int main(int argc, char* argv[]) {
 					ss_err << "    [Wanning]TXT2, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
 				}
 
-				auto vids = GetVoiceId(s2);
+				auto vid_rst = GetVoiceId(s2);
+				const auto& vids = vid_rst.second;
+				if(vid_rst.first) {
+					ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID IN MIDDLE\n";
+				}
 				if (vids.size() > 1) {
 					ss_err << "    [Wanning]TXT2, line " << line_no << ", MULTIPLE VOICE IDs\n";
 				}
