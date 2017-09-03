@@ -90,6 +90,7 @@ void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	bool multiLines = talk.Dialogs().size() > 1 || talk.Dialogs()[0].LinesNum() > 1;
 	if(multiLines) os << SPACE SPACE "(\n";
 	for (const auto& dlg : talk.Dialogs()) {
+		if(dlg.No() != 0) os << '\n';
 		for (const auto& line : dlg.Lines()) {
 			os << (multiLines ? SPACE SPACE SPACE DQOUT : SPACE SPACE DQOUT)
 				<< TalkStr2PyStr(line.text) << DQOUT ","
