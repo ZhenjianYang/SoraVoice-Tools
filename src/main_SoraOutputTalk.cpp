@@ -159,9 +159,12 @@ int main(int argc, char* argv[]) {
 
 		if (!fmt2) {
 			Sora::Txt txt1(std::move(tf1));
-			ofstream ofs1_out(dir1_out + name + ".txt");
-			txt1.WriteTo(ofs1_out, true);
-			ofs1_out.close();
+
+			if (!txt1.Talks().empty()) {
+				ofstream ofs1_out(dir1_out + name + ".txt");
+				txt1.WriteTo(ofs1_out, true);
+				ofs1_out.close();
+			}
 
 			ofs_rep << std::setw(10) << name
 				<< std::setw(12) << txt1.Talks().size()

@@ -285,7 +285,10 @@ int main(int argc, char* argv[]) {
 	bool vlenAll = false; //switches.find('L') != switches.end();
 
 	if (vlenA5 || vlenAll) {
-		if (!InitOgg()) return -1;
+		if (!InitOgg()) {
+			cout << "Warning: Init ogg failed." << endl;
+			vlenA5 = vlenAll = false;
+		}
 	}
 
 	string dir1 = params[0]; while (!dir1.empty() && (dir1.back() == '\\' || dir1.back() == '/')) dir1.pop_back();
@@ -454,13 +457,13 @@ int main(int argc, char* argv[]) {
 		}
 
 		if (ss_new.str().empty()) {
-			ofs_rep << name << "Error Exist:\n" << ss_err.str() << '\n';
+			ofs_rep << name << ":Error Exist:\n" << ss_err.str() << '\n';
 			has_err = true;
 		}
 		else {
 			Txt txt(ss_new);
 			if (!txt.ErrMsg().empty()) {
-				ofs_rep << name << "Error Exist:\n" << txt.ErrMsg() << "\n\n";
+				ofs_rep << name << ":Error Exist:\n" << txt.ErrMsg() << "\n\n";
 				has_err = true;
 			}
 			else {
