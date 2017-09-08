@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exporter_SNT", "Exporter_SNT\Exporter_SNT.vcxproj", "{110CF2DC-8DFD-4E47-BF88-6B3B0B2D6318}"
 EndProject
@@ -36,6 +36,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraInputTalk", "SoraInputTalk\SoraInputTalk.vcxproj", "{5467376F-65D9-4FCA-964E-6C0B71549457}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraInputVoiceId", "SoraInputVoiceId\SoraInputVoiceId.vcxproj", "{51F14935-7DAD-4C40-8DEB-997134795CCD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoraMoveFuns", "SoraMoveFuns\SoraMoveFuns.vcxproj", "{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +97,10 @@ Global
 		{51F14935-7DAD-4C40-8DEB-997134795CCD}.Debug|x86.Build.0 = Debug|Win32
 		{51F14935-7DAD-4C40-8DEB-997134795CCD}.Release|x86.ActiveCfg = Release|Win32
 		{51F14935-7DAD-4C40-8DEB-997134795CCD}.Release|x86.Build.0 = Release|Win32
+		{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}.Debug|x86.ActiveCfg = Debug|Win32
+		{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}.Debug|x86.Build.0 = Debug|Win32
+		{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}.Release|x86.ActiveCfg = Release|Win32
+		{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,5 +119,9 @@ Global
 		{72ED6396-5186-40BB-80B4-B1D8939DEA13} = {5074FB50-0C06-440C-998F-894A3C2EE0EF}
 		{5467376F-65D9-4FCA-964E-6C0B71549457} = {5074FB50-0C06-440C-998F-894A3C2EE0EF}
 		{51F14935-7DAD-4C40-8DEB-997134795CCD} = {5074FB50-0C06-440C-998F-894A3C2EE0EF}
+		{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8} = {5074FB50-0C06-440C-998F-894A3C2EE0EF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {703408F6-B679-48C4-8432-C2A29A4B4950}
 	EndGlobalSection
 EndGlobal
