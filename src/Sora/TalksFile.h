@@ -26,21 +26,6 @@ namespace Sora {
 		virtual bool WriteTo(std::ostream& os, bool with_cmt = false) const { return false; }
 		virtual bool WriteTo(const std::string& filename, bool with_cmt = false) const { return false; }
 
-		void Resort() {
-			TalksT tmp_talks;
-			tmp_talks.resize(talks.size(), Talk(-1, Talk::InvalidTalk));
-			for (auto & talk : talks) {
-				if (talk.No() < 0 || talk.GetType() == Talk::InvalidTalk) continue;
-				if (talk.No() >= (int)tmp_talks.size()) {
-					tmp_talks.resize(talk.No() + 1, Talk(-1, Talk::InvalidTalk));
-				}
-				tmp_talks[talk.No()] = std::move(talk);
-			}
-			while (!tmp_talks.empty() && tmp_talks.back().GetType() == Talk::InvalidTalk) tmp_talks.pop_back();
-			talks = std::move(tmp_talks);
-			ResetPDialogs();
-		}
-
 	public:
 		TalksFile(const TalksFile& _Other) :
 			talks(_Other.talks), err(_Other.err) {

@@ -110,6 +110,38 @@ static auto GetVoiceId(const string& str) {
 	return rst;
 }
 
+static auto GetOp(const string& str, char op) {
+	pair<bool, vector<string>> rst{ false,{} };
+	size_t i = 0;
+	bool text = false;
+	while (i < str.length()) {
+		while (i < str.length() && str[i] != '#') {
+			if (i + 4 < str.length() && str[i] == '[' && str[i + 1] == 'x' && str[i + 4] == ']') {
+				i += 5;
+			}
+			else {
+				if (str[i] != '\t') {
+					text = true;
+				}
+				i++;
+			}
+		}
+		if (i >= str.length()) break;
+		i++;
+		if (str[i] == '#') break;
+		string tmp;
+		while (str[i] >= '0' && str[i] <= '9') tmp.push_back(str[i++]);
+		if (str[i] == op) {
+			rst.second.push_back(tmp);
+			if (text) {
+				rst.first = true;
+			}
+		}
+		if ((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')) i++;
+	}
+	return rst.second;
+}
+
 static inline Talk::Type GetType(const string& str) {
 	static const vector<string> str_types{ Talk::Str_TalkTypes,  Talk::Str_TalkTypes + Talk::NumTalkTypes };
 	for (auto tt : Talk::TypesList) {
@@ -397,10 +429,13 @@ int main(int argc, char* argv[]) {
 			}
 
 			if (lt != LineType::None) {
-				auto vid_rst = GetVoiceId(s2);
-				const auto& vids = vid_rst.second;
-				if (!vids.empty() && !std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
-					ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
+				if (lt != LineType::Empty) 
+				{
+					auto vid_rst = GetVoiceId(s2);
+					const auto& vids = vid_rst.second;
+					if (!vids.empty() && !std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
+						ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
+					}
 				}
 			}
 			else {
@@ -446,6 +481,10 @@ int main(int argc, char* argv[]) {
 					auto str_vlen = GetStrVlen(lst_vid);
 					if (!str_vlen.empty()) {
 						str_vlen = "\t\t\t## " + str_vlen;
+						auto opAs = GetOp(s2, 'A');
+						for (const auto& opA : opAs) {
+							str_vlen.append(" #" + opA + "A");
+						}
 					}
 					s.append(str_vlen);
 					lst_vid.clear();

@@ -86,7 +86,7 @@ void Sora::Txt::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	bool opA = talk.HasOp('A');
 
 	if (op5 || opA) {
-		os << ";";
+		os << ";;;;------------------";
 		if (opA) os << " op#A";
 		if (op5) os << " op#5";
 		os << '\n';
@@ -95,7 +95,7 @@ void Sora::Txt::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	os << Talk::Str_TalkTypes[talk.GetType()] << " #"
 		<< std::dec << talk.No() << '\n';
 
-	if (talk.ChrId() != Talk::InvalidChrId) os << "0x" << std::hex << talk.ChrId() << '\n';
+	if (talk.ChrId() != Talk::InvalidChrId) os << "0x" << std::hex << std::uppercase << talk.ChrId() << '\n';
 	if (talk.GetType() == Talk::NpcTalk) os << talk.Name() << '\n';
 
 	for (const auto& dlg : talk.Dialogs()) {

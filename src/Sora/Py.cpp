@@ -79,7 +79,18 @@ std::string Sora::Py::TalkStr2PyStr(const std::string& str) {
 }
 
 void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
-	os << SPACE << Talk::Str_TalkTypes[talk.GetType()] << "(\n";
+	os << SPACE << Talk::Str_TalkTypes[talk.GetType()] << "("
+		<< SPACE << '#' << dec << talk.No();
+
+	if (with_cmt) {
+		bool opA = talk.HasOp('A');
+		bool op5 = talk.HasOp('5');
+
+		if (opA) os << " op#A";
+		if (op5) os << " op#5";
+	}
+	os << '\n';
+
 	if (talk.GetType() != Talk::AnonymousTalk) {
 		os << SPACE SPACE << "0x" << hex << uppercase << talk.ChrId() << ",\n";
 	}
@@ -102,7 +113,6 @@ void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	os << SPACE ")\n";
 }
 
-
 Sora::Py::Py(const std::string& filename) {
 	std::ifstream ifs(filename);
 	if (!ifs) {
@@ -123,7 +133,6 @@ int Sora::Py::Create(std::istream & is)
 	pDialogs.clear();
 
 	char buff[MAXCH_ONELINE + 1];
-	int no = 0;
 
 	constexpr int len_space = sizeof(SPACE) - 1;
 	const string fun_end = SPACE ")";
@@ -151,7 +160,13 @@ int Sora::Py::Create(std::istream & is)
 			if (std::equal(str_types[tid].cbegin(), str_types[tid].cend(), s.c_str() + len_space)) {
 				type = tid;
 				lines.push_back({ -(int)talks.size(), "" });
-				talks.push_back(Talk(no++, type));
+
+				int no = talks.size();
+				auto idx = s.find('#', str_types[tid].length());
+				if (idx != string::npos) {
+					sscanf(s.c_str() + idx + 1, "%d", &no);
+				}
+				talks.push_back(Talk(no, type));
 
 				bool chrId_got = false;
 				bool name_got = type != Talk::NpcTalk;
@@ -245,32 +260,12 @@ int Sora::Py::Create(std::istream & is)
 }
 
 bool Sora::Py::WriteTo(std::ostream& os, bool with_cmt) const {
-	bool out_no = true;
-	bool opA = false;
-	bool op5 = false;
 	for(const auto& line : lines) {
 		if (line.lineNo > 0) {
-			if (opA || op5) {
-				if (line.content.length() < 5 || line.content[4] != '#') {
-					os << SPACE "#"
-						<< (opA ? " op#A" : "")
-						<< (op5 ? " op#5" : "") << '\n';
-				}
-				opA = op5 = false;
-			}
-
 			os << line.content << '\n';
-			out_no = line.content.length() < 5 || line.content[4] != '#';
 		}
 		else {
-			if (talks[-line.lineNo].No() < 0 || talks[-line.lineNo].GetType() == Talk::InvalidTalk) continue;
-
-			if (out_no) {
-				os << SPACE "#" << talks[-line.lineNo].No() << '\n';
-			}
 			OutputTalk(os, talks[-line.lineNo], with_cmt);
-			opA = talks[-line.lineNo].HasOp('A');
-			op5 = talks[-line.lineNo].HasOp('\x5');
 		}
 	}
 	os << std::flush;

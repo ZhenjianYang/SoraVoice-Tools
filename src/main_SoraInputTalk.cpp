@@ -33,6 +33,7 @@ static inline void printUsage() {
 		"\n"
 		"    Switches:\n"
 		"        c : Add comments to output\n"
+		"        v : remove voice commands\n"
 		"    Possible values of format:\n"
 		"        s : ._SN.txt\n"
 		"        p : .py\n"
@@ -63,6 +64,24 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	}
 }
 
+static void RemoveOp(std::string& s, char op) {
+	size_t i = 0;
+	size_t idx = 0;
+	while (i < s.length()) {
+		if (s[i] == '#') {
+			auto j = i + 1;
+			while (s[j] >= '0' && s[j] <= '9') j++;
+			if (s[j] == op) {
+				i = j + 1;
+				continue;
+			}
+		}
+
+		s[idx++] = s[i++];
+	}
+	s.resize(idx);
+}
+
 int main(int argc, char* argv[]) {
 	unordered_set<char> switches;
 	vector<string> params;
@@ -76,6 +95,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	bool with_cmt = switches.find('c') != switches.end();
+	bool remove_vc = switches.find('v') != switches.end();
 
 	ERROR_EXIST(params.size() < 3);
 	string fmts = params[0];
@@ -128,17 +148,18 @@ int main(int argc, char* argv[]) {
 		}
 
 		auto &tf_txt = *ptf_txt;
-		tf_txt.Resort();
-		for (auto& talk : tf_txt.Talks()) {
-			if (talk.No() < 0 || talk.GetType() == Talk::InvalidTalk) continue;
+		for (size_t i = 0; i < tf_txt.Talks().size(); i++) {
+			const auto& talk = tf_txt.Talks()[i];
 
-			if (talk.No() >= (int)tf.Talks().size()) {
+			if (talk.GetType() == Talk::InvalidTalk) continue;
+
+			if (i >= (int)tf.Talks().size()) {
 				ss_err << "    [NotInput]: #" << talk.No() << '\n';
 				cnt_npt++;
 				continue;
 			}
 
-			auto& talk_ori = tf.Talks()[talk.No()];
+			auto& talk_ori = tf.Talks()[i];
 			if (talk_ori.GetType() != talk.GetType()) {
 				ss_err << "    [Wanning]: #" << talk.No() << ", Type Not Same.\n";
 			}
@@ -149,6 +170,17 @@ int main(int argc, char* argv[]) {
 			talk_ori = std::move(talk);
 		}
 		tf.ResetPDialogs();
+
+		if (remove_vc) {
+			for (auto &talk : tf.Talks()) {
+				for (auto &dlg : talk.Dialogs()) {
+					for (auto &line : dlg.Lines()) {
+						RemoveOp(line.text, 'V');
+						RemoveOp(line.text, 'v');
+					}
+				}
+			}
+		}
 
 		ofstream ofs_out(dir_out + fn_in);
 		tf.WriteTo(ofs_out, with_cmt);
