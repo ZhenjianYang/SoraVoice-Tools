@@ -168,6 +168,7 @@ int main(int argc, char* argv[]) {
 			}
 
 			talk_ori = std::move(talk);
+			cnt_ipt++;
 		}
 		tf.ResetPDialogs();
 

@@ -84,7 +84,7 @@ void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 
 	if (with_cmt) {
 		bool opA = talk.HasOp('A');
-		bool op5 = talk.HasOp('5');
+		bool op5 = talk.HasOp('\x05');
 
 		if (opA) os << " op#A";
 		if (op5) os << " op#5";

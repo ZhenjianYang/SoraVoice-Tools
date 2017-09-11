@@ -384,6 +384,10 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
+			if (IsEmptyLine(s2)) {
+				s2.clear();
+			}
+
 			if (lt == LineType::None) {
 				auto tt = GetType(s);
 				if (tt != Talk::InvalidTalk) {
