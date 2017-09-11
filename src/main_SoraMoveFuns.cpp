@@ -82,10 +82,10 @@ int main(int argc, char* argv[]) {
 		fp2.WriteTo(ofs2);
 		ofs2.close();
 
-		cout << idx2 - cnt2 << " funs chaned." << endl;
+		cout << idx2 - cnt2 << " funs changed." << endl;
 	}
 	else {
-		cout << "No chaned." << endl;
+		cout << "No changed." << endl;
 	}
 
 	return 0;
