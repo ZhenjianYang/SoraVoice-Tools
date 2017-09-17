@@ -144,13 +144,13 @@ namespace Sora {
 					op.op = p[i];
 					switch (op.op) {
 					case OP::SCPSTR_CODE_ITEM:
-						isSymbol = true;
+						//isSymbol = true;
 						bytes += 2;
 						op.oprnd = p[2] << 8 | p[1];
 						if (i + bytes > p.length()) return false;
 						break;
 					case OP::SCPSTR_CODE_COLOR:
-						isSymbol = true;
+						//isSymbol = true;
 						bytes += 1;
 						if (i + bytes > p.length()) return false;
 						op.oprnd = p[1];

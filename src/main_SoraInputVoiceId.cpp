@@ -39,6 +39,7 @@ static inline void printUsage() {
 		"    Switches:"
 		"        m : Enable voice id mapping\n"
 		"        l : Add voice length for op#A and op#5\n"
+		"        v : Wanning if voiceID not inputed"
 //		"        L : Add voice length for all voices\n"
 		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
 		"\n"
@@ -315,6 +316,7 @@ int main(int argc, char* argv[]) {
 	bool enable_mapping = switches.find('m') != switches.end();
 	bool vlenA5 = switches.find('l') != switches.end();
 	bool vlenAll = false; //switches.find('L') != switches.end();
+	bool warnv = switches.find('v') != switches.end();
 
 	if (vlenA5 || vlenAll) {
 		if (!InitOgg()) {
@@ -433,7 +435,7 @@ int main(int argc, char* argv[]) {
 			}
 
 			if (lt != LineType::None) {
-				if (lt != LineType::Empty) 
+				if (!IsEmptyLine(s2) && (lt != LineType::Empty || warnv))
 				{
 					auto vid_rst = GetVoiceId(s2);
 					const auto& vids = vid_rst.second;
