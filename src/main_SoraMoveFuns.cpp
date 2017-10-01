@@ -13,7 +13,7 @@ using namespace Sora;
 static inline void printUsage() {
 	std::cout << "Usage:\n"
 		"\n"
-		"  SoraMoveFuns py1 py2 count\n"
+		"  SoraMoveFuns py1 py2 count [scp_idx of py2]\n"
 		<< endl;
 }
 
@@ -37,6 +37,12 @@ int main(int argc, char* argv[]) {
 	const string path_py1 = params[0];
 	const string path_py2 = params[1];
 	const int count = std::strtol(params[2].c_str(), nullptr, 10);
+	const string str_scp_idx = params.size() >= 4 ? params[3] : "1";
+
+	if (params.size() >= 4) {
+		const int scp_idx = std::strtol(str_scp_idx.c_str(), nullptr, 10);
+		ERROR_EXIST(scp_idx < 0 || scp_idx > 7);
+	}
 
 	ERROR_EXIST(count <= 0);
 
@@ -63,7 +69,7 @@ int main(int argc, char* argv[]) {
 		newFun.AddLine("");
 		newFun.AddLine(TBL "label(\"" + newFun.Name() + "\")");
 		newFun.AddLine("");
-		newFun.AddLine(TBL "Call(1, " + std::to_string(idx2) + ")");
+		newFun.AddLine(TBL "Call(" + str_scp_idx + ", " + std::to_string(idx2) + ")");
 		newFun.AddLine(TBL "Return()");
 		newFun.AddLine("");
 		newFun.AddLine(TBL "# " + newFun.Name() + " end");

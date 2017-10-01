@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
 		const string fn2 = name + ext2;
 		auto ptf2 = getTalksFile(dir2 + fn2, fmt2);
 		if (!ptf2->ErrMsg().empty()) {
-			std::cout << fn2 << ": " << ptf2->ErrMsg() << endl;
+			std::cout << fn2 << ": " << ptf2->ErrMsg();
 			ptf2 = make_unique<TalksFile>();
 		}
 		const auto &tf2 = *ptf2;
