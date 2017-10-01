@@ -44,7 +44,7 @@ namespace Sora {
 				switch (a.op) {
 				case 'F': return -10;
 				case OP::SCPSTR_CODE_ENTER: return -20;
-				case OP::SCPSTR_CODE_COLOR: return -30;
+				case OP::SCPSTR_CODE_COLOR: return a.oprnd == 0 ? 0 : -30;
 				case 'S': return -5;
 				default: return -3;
 				}
