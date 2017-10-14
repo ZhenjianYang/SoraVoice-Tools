@@ -249,7 +249,7 @@ static string GetStrVlen(const string vid) {
 	char buff[24];
 	for (const auto& vp : vpaths) {
 		string p = vp + "\\ch" + voice_id + ".ogg";
-		if (!ogg->Open(p.c_str())) return "";
+		if (!ogg->Open(p.c_str())) continue;
 
 		int vlen = ogg->SamplesTotal() * 1000 / ogg->WaveFormat.nSamplesPerSec;
 		ogg->Close();
