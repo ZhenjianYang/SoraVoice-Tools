@@ -5,81 +5,130 @@
 #include <unordered_set>
 #include <vector>
 
-
-
 using namespace std;
 using namespace Sora;
 
 static inline void printUsage() {
 	std::cout << "Usage:\n"
 		"\n"
-		"  SoraMoveFuns py1 py2 count [scp_idx of py2]\n"
+		"  SoraMoveFuns idx1 py1 idx2 py2 scp_fun_1 [scp_fun_2 ...]\n"
+		"    scp_fun >= 0 : move scp_fun from py1 to py2 (mode 1)\n"
+		"    scp_fun <= -0 : move -scp_fun from py1 to py2 (mode 2)\n"
+		"    NOTE: 0 != -0\n"
 		<< endl;
 }
 
 #define ERROR_EXIST(condition) if(condition) { printUsage(); return -1; }
 #define TBL "    "
+#define STR_INDEX "-index="
+#define STR_CALL TBL "Call("
+
+static int getIndex(const char* buff) {
+	if(*buff == '\0') return -1;
+
+	int rst = 0;
+	while(*buff >= '0' && *buff <= '9') {
+		rst *= 10;
+		rst += *buff - '0';
+		++buff;
+	}
+
+	if(*buff != '\0') return -1;
+	return rst;
+}
 
 int main(int argc, char* argv[]) {
-	unordered_set<char> switches;
-	vector<string> params;
+	ERROR_EXIST(argc < 6);
 
-	for (int i = 1; i < argc; i++) {
-		if (argv[i][0] == '-') {
-			for (int j = 1; argv[i][j]; j++) switches.insert(argv[i][j]);
-		}
-		else {
-			params.push_back(argv[i]);
-		}
+	const unsigned id1 = getIndex(argv[1]);
+	const string path_py1 = argv[2];
+	const unsigned id2 = getIndex(argv[3]);
+	const string path_py2 = argv[4];
+
+	const string py1 = path_py1.substr(path_py1.rfind('\\') + 1);
+	const string py2 = path_py1.substr(path_py2.rfind('\\') + 1);
+
+	ERROR_EXIST(id1 < 0 || id1 > 7);
+	ERROR_EXIST(id2 < 0 || id2 > 7);
+
+	vector<unsigned> scp_ids;
+	for (int i = 5; i < argc; i++) {
+		int id = getIndex(argv[i]);
+		ERROR_EXIST(id < 0);
+		scp_ids.push_back(id);
 	}
-	ERROR_EXIST(params.size() < 3);
-
-	const string path_py1 = params[0];
-	const string path_py2 = params[1];
-	const int count = std::strtol(params[2].c_str(), nullptr, 10);
-	const string str_scp_idx = params.size() >= 4 ? params[3] : "1";
-
-	if (params.size() >= 4) {
-		const int scp_idx = std::strtol(str_scp_idx.c_str(), nullptr, 10);
-		ERROR_EXIST(scp_idx < 0 || scp_idx > 7);
-	}
-
-	ERROR_EXIST(count <= 0);
+	ERROR_EXIST(scp_ids.size() < 1);
 
 	FunPy fp1(path_py1);
 	FunPy fp2(path_py2);
 
-	if ((int)fp1.ScpFuns().size() < count) {
-		cout << "No enough scpfuns in " << path_py1 << endl;
-		return -1;
+	int cnt = 0;
+	vector<string> errs;
+
+	constexpr int MinLinesNeedMove = 10;
+
+	char strbuf[1024];
+
+	for(auto scp_id : scp_ids) {
+		if (scp_id >= fp1.ScpFuns().size()) {
+			std::sprintf(strbuf, "%s: scp fun %d not exists.", py1.c_str(), scp_id);
+			errs.push_back(strbuf);
+			continue;
+		}
+
+		auto &scp_fun = fp1.ScpFuns()[scp_id];
+		if (scp_fun.Lines().size() < MinLinesNeedMove) {
+			std::sprintf(strbuf, "%s: scp fun no need to be moved, lines count : %d", py1.c_str(), scp_fun.Lines().size());
+			errs.push_back(strbuf);
+			continue;
+		}
+
+		bool err = false;
+		unsigned new_scp_id = fp2.ScpFuns().size();
+		std::sprintf(strbuf, STR_CALL "%d, %d)", id2, new_scp_id);
+		const string str_new_call = strbuf;
+
+		for (size_t i = 0; i < fp1.ScpFuns().size() && !err; i++) {
+			if (i == scp_id) continue;
+
+			for (auto& line : fp1.ScpFuns()[i].Lines()) {
+				int t_id, t_scp_id;
+				if (2 == sscanf(line.c_str(), STR_CALL "%d, %d)", &t_id, &t_scp_id)
+					&& t_id == id1 && t_scp_id == scp_id) {
+					line = str_new_call;
+				}
+			}
+		}
+
+		for (size_t i = 0; i < fp2.ScpFuns().size(); i++) {
+			for (auto& line : fp2.ScpFuns()[i].Lines()) {
+				int t_id, t_scp_id;
+				if (2 == sscanf(line.c_str(), STR_CALL "%d, %d)", &t_id, &t_scp_id)
+					&& t_id == id1 && t_scp_id == scp_id) {
+					line = str_new_call;
+				}
+			}
+		}
+
+		string scp_name = scp_fun.Name();
+		fp2.AddFun(std::move(scp_fun));
+		scp_fun.Name() = scp_name;
+		scp_fun.Lines().clear();
+
+		scp_fun.AddLine(TBL "def " + scp_name + "(): pass");
+		scp_fun.AddLine("");
+		scp_fun.AddLine(TBL "label(\"" + scp_name + "\")");
+		scp_fun.AddLine("");
+		scp_fun.AddLine(str_new_call);
+		scp_fun.AddLine(TBL "Return()");
+		scp_fun.AddLine("");
+		scp_fun.AddLine(TBL "# " + scp_name + " end");
+		scp_fun.AddLine("");
+
+		cnt++;
 	}
 
-	int idx1 = fp1.ScpFuns().size() - count;
-	int idx2 = fp2.ScpFuns().size();
-	const int cnt2 = idx2;
-
-	for (int i = 0; i < count; i++, idx1++) {
-		auto& scpFun = fp1.ScpFuns()[idx1];
-		if (scpFun.Lines().size() < 10) continue;
-
-		ScpFun newFun(scpFun.Name());
-		fp2.AddFun(std::move(scpFun));
-
-		newFun.AddLine(TBL "def " + newFun.Name() + "(): pass");
-		newFun.AddLine("");
-		newFun.AddLine(TBL "label(\"" + newFun.Name() + "\")");
-		newFun.AddLine("");
-		newFun.AddLine(TBL "Call(" + str_scp_idx + ", " + std::to_string(idx2) + ")");
-		newFun.AddLine(TBL "Return()");
-		newFun.AddLine("");
-		newFun.AddLine(TBL "# " + newFun.Name() + " end");
-		newFun.AddLine("");
-
-		fp1.ScpFuns()[idx1] = std::move(newFun);
-		idx2++;
-	}
-
-	if (idx2 > cnt2) {
+	if (cnt > 0) {
 		ofstream ofs1(path_py1);
 		fp1.WriteTo(ofs1);
 		ofs1.close();
@@ -88,10 +137,19 @@ int main(int argc, char* argv[]) {
 		fp2.WriteTo(ofs2);
 		ofs2.close();
 
-		cout << idx2 - cnt2 << " funs changed." << endl;
+		cout << py1 << ": " << cnt << " funs changed." << endl;
 	}
 	else {
-		cout << "No changed." << endl;
+		cout << py1 << ": No changed." << endl;
+	}
+
+	if (!errs.empty()) {
+		cout << "Errors exist:\n";
+		for (const auto& err : errs) {
+			cout << "    " << err << "\n";
+		}
+		cout << flush;
+		system("pause");
 	}
 
 	return 0;
