@@ -39,7 +39,7 @@ static inline void printUsage() {
 		"    Switches:"
 		"        m : Enable voice id mapping\n"
 		"        l : Add voice length for op#A and op#5\n"
-		"        v : Wanning if voiceID not inputed"
+		"        v : Warnning if voiceID not inputed"
 //		"        L : Add voice length for all voices\n"
 		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
 		"\n"
@@ -382,7 +382,7 @@ int main(int argc, char* argv[]) {
 			if (IsEmptyLine(s)) {
 				lt = LineType::Empty;
 				if (std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
-					ss_err << "    [Wanning]TXT1, line " << line_no << ", NOT MATCHED DIALOG\n";
+					ss_err << "    [Warnning]TXT1, line " << line_no << ", NOT MATCHED DIALOG\n";
 				}
 			}
 
@@ -400,7 +400,7 @@ int main(int argc, char* argv[]) {
 					lt = LineType::Type;
 
 					if (GetType(s2) == Talk::InvalidTalk && !IsEmptyLine(s2)) {
-						ss_err << "    [Wanning]TXT1, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
+						ss_err << "    [Warnning]TXT1, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
 					}
 
 					lst_vid.clear();
@@ -419,7 +419,7 @@ int main(int argc, char* argv[]) {
 					lt = LineType::ChrId;
 
 					if (!IsEmptyLine(s2) && GetChrID(s2) == Talk::InvalidChrId) {
-						ss_err << "    [Wanning]TXT1, line " << line_no << ", CHRID LINE NOT MATCHED\n";
+						ss_err << "    [Warnning]TXT1, line " << line_no << ", CHRID LINE NOT MATCHED\n";
 					}
 				}
 				chrId_got = true;
@@ -427,7 +427,7 @@ int main(int argc, char* argv[]) {
 
 			if (lt == LineType::None && !name_got) {
 				if (GetChrID(s2) != Talk::InvalidChrId) {
-					ss_err << "    [Wanning]TXT1, line " << line_no << ", NAME LINE NOT MATCHED\n";
+					ss_err << "    [Warnning]TXT1, line " << line_no << ", NAME LINE NOT MATCHED\n";
 				}
 
 				lt = LineType::Name;
@@ -440,25 +440,25 @@ int main(int argc, char* argv[]) {
 					auto vid_rst = GetVoiceId(s2);
 					const auto& vids = vid_rst.second;
 					if (!vids.empty() && !std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
-						ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
+						ss_err << "    [Warnning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
 					}
 				}
 			}
 			else {
 				if (GetChrID(s2) != Talk::InvalidChrId) {
-					ss_err << "    [Wanning]TXT2, line " << line_no << ",  CHRID LINE NOT MATCHED\n";
+					ss_err << "    [Warnning]TXT2, line " << line_no << ",  CHRID LINE NOT MATCHED\n";
 				}
 				if (GetType(s2) != Talk::InvalidTalk) {
-					ss_err << "    [Wanning]TXT2, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
+					ss_err << "    [Warnning]TXT2, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
 				}
 
 				auto vid_rst = GetVoiceId(s2);
 				const auto& vids = vid_rst.second;
 				if(vid_rst.first) {
-					ss_err << "    [Wanning]TXT2, line " << line_no << ", VOICE ID IN MIDDLE\n";
+					ss_err << "    [Warnning]TXT2, line " << line_no << ", VOICE ID IN MIDDLE\n";
 				}
 				if (vids.size() > 1) {
-					ss_err << "    [Wanning]TXT2, line " << line_no << ", MULTIPLE VOICE IDs\n";
+					ss_err << "    [Warnning]TXT2, line " << line_no << ", MULTIPLE VOICE IDs\n";
 				}
 
 				if (!vids.empty()) {
@@ -512,6 +512,18 @@ int main(int argc, char* argv[]) {
 				has_err = true;
 			}
 			else {
+				for (const auto& dlg : txt.PtrDialogs()) {
+					int cntv = 0;
+					for (const auto& op : dlg->Ops()) {
+						if (op.op == 'v') {
+							cntv++;
+						}
+					}
+					if (cntv > 1) {
+						ss_err << "    [Warnning]Talk #" << dlg->Parent().No() << ", Dlg #" << dlg->No() << ", MULTIPLE VOICE IDs\n";
+					}
+				}
+
 				ofstream ofs(dir_out + fn);
 				ofs << ss_new.str();
 				ofs.close();
@@ -533,7 +545,7 @@ int main(int argc, char* argv[]) {
 		FreeLibrary(ogg_dll);
 	}
 	if (has_err) {
-		cout << "Wannings/Errors found, check " << prep << " for details" << endl;
+		cout << "Warnnings/Errors found, check " << prep << " for details" << endl;
 		system("pause");
 	}
 

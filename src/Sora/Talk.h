@@ -73,8 +73,6 @@ namespace Sora {
 		using DialogsT = std::vector<Dialog>;
 		static constexpr int InvalidChrId = 0x80000000;
 
-		static constexpr char Dft_Ignore_List_A[] = { 'J', 'V', 'v', 'B', 'R', 'I', 'Z' };
-
 		int No() const { return no; }
 		Type GetType() const { return type; }
 		void SetType(Type type) { this->type = type; }
@@ -107,8 +105,7 @@ namespace Sora {
 			return false;
 		}
 
-		template<typename IgnoreList = decltype(Dft_Ignore_List_A)>
-		bool Add(const std::string& content, const IgnoreList& ignore_list = Dft_Ignore_List_A) {
+		bool Add(const std::string& content) {
 			auto & p = content;
 
 			size_t i = 0;
@@ -180,7 +177,7 @@ namespace Sora {
 					}
 				}
 
-				if (op.op && std::find(std::begin(ignore_list), std::end(ignore_list), op.op) == std::end(ignore_list)) {
+				if (op.op) {
 					dialogs.back().ops.push_back(op);
 				}
 				for(; bytes > 0;bytes --) dialogs.back().lines.back().text.push_back(p[i++]);

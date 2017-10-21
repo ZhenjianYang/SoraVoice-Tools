@@ -161,10 +161,10 @@ int main(int argc, char* argv[]) {
 
 			auto& talk_ori = tf.Talks()[i];
 			if (talk_ori.GetType() != talk.GetType()) {
-				ss_err << "    [Wanning]: #" << talk.No() << ", Type Not Same.\n";
+				ss_err << "    [Warnning]: #" << talk.No() << ", Type Not Same.\n";
 			}
 			if (talk_ori.ChrId() != talk.ChrId()) {
-				ss_err << "    [Wanning]: #" << talk.No() << ", ChrId Not Same.\n";
+				ss_err << "    [Warnning]: #" << talk.No() << ", ChrId Not Same.\n";
 			}
 
 			talk_ori = std::move(talk);
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 
 	ofs_rep.close();
 	if (has_err) {
-		cout << "Wannings/Errors found, check " << prep << " for details" << endl;
+		cout << "Warnnings/Errors found, check " << prep << " for details" << endl;
 		system("pause");
 	}
 

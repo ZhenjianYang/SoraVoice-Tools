@@ -42,6 +42,7 @@ namespace Sora {
 			}
 			JudgeVT operator()(const OP& a, const nullptr_t&) const {
 				switch (a.op) {
+				case 'J': case 'V': case 'v': case 'B': case 'R': case 'I': case 'Z': return 0;
 				case 'F': return -10;
 				case OP::SCPSTR_CODE_ENTER: return -20;
 				case OP::SCPSTR_CODE_COLOR: return a.oprnd == 0 ? 0 : -30;
