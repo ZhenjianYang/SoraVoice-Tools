@@ -38,8 +38,9 @@ static inline void printUsage() {
 		"\n"
 		"    Switches:"
 		"        m : Enable voice id mapping\n"
-		"        l : Add voice length for op#A and op#5\n"
+		"        s : Simple mode\n"
 		"        v : Warnning if voiceID not inputed"
+		"        l : Add voice length for op#A and op#5\n"
 //		"        L : Add voice length for all voices\n"
 		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
 		"\n"
@@ -317,6 +318,7 @@ int main(int argc, char* argv[]) {
 	bool vlenA5 = switches.find('l') != switches.end();
 	bool vlenAll = false; //switches.find('L') != switches.end();
 	bool warnv = switches.find('v') != switches.end();
+	bool simple_mode = switches.find('s') != switches.end();
 
 	if (vlenA5 || vlenAll) {
 		if (!InitOgg()) {
@@ -324,6 +326,8 @@ int main(int argc, char* argv[]) {
 			vlenA5 = vlenAll = false;
 		}
 	}
+
+	ERROR_EXIST(params.size() < 2);
 
 	string dir1 = params[0]; while (!dir1.empty() && (dir1.back() == '\\' || dir1.back() == '/')) dir1.pop_back();
 	string dir2 = params[1];
@@ -376,6 +380,25 @@ int main(int argc, char* argv[]) {
 			if (if2.getline(buf2, sizeof(buf2))) {
 				if (line_no == 0 && buf2[0] == '\xEF' && buf2[1] == '\xBB' && buf2[2] == '\xBF') s2 = buf2 + 3;
 				else s2 = buf2;
+			}
+
+			if (simple_mode) {
+				auto vid_rst = GetVoiceId(s2);
+				const auto& vids = vid_rst.second;
+
+				if (!IsEmptyLine(s) && !vids.empty()) {
+					auto it = vid_map.find(vids[0]);
+					if (it != vid_map.end()) {
+						s = "#" + it->second + "v" + s;
+					}
+					else {
+						s = "#" + vids[0] + "v" + s;
+					}
+					cnt++;
+				}
+
+				ss_new << s << '\n';
+				continue;
 			}
 
 			LineType lt = LineType::None;
@@ -501,40 +524,51 @@ int main(int argc, char* argv[]) {
 			ss_new << s << '\n';
 		}
 
-		if (ss_new.str().empty()) {
+		if (ss_new.str().empty() && !ss_err.str().empty()) {
 			ofs_rep << name << ":Error Exist:\n" << ss_err.str() << '\n';
 			has_err = true;
 		}
 		else {
-			Txt txt(ss_new);
-			if (!txt.ErrMsg().empty()) {
-				ofs_rep << name << ":Error Exist:\n" << txt.ErrMsg() << "\n\n";
-				has_err = true;
-			}
-			else {
-				for (const auto& dlg : txt.PtrDialogs()) {
-					int cntv = 0;
-					for (const auto& op : dlg->Ops()) {
-						if (op.op == 'v') {
-							cntv++;
+			int cnt_talks = -1;
+			if (!simple_mode) {
+				Txt txt(ss_new);
+				if (!txt.ErrMsg().empty()) {
+					ofs_rep << name << ":Error Exist:\n" << txt.ErrMsg() << "\n\n";
+					has_err = true;
+
+					continue;
+				}
+				else {
+					for (const auto& dlg : txt.PtrDialogs()) {
+						int cntv = 0;
+						for (const auto& op : dlg->Ops()) {
+							if (op.op == 'v') {
+								cntv++;
+							}
+						}
+						if (cntv > 1) {
+							ss_err << "    [Warnning]Talk #" << dlg->Parent().No() << ", Dlg #" << dlg->No() << ", MULTIPLE VOICE IDs\n";
 						}
 					}
-					if (cntv > 1) {
-						ss_err << "    [Warnning]Talk #" << dlg->Parent().No() << ", Dlg #" << dlg->No() << ", MULTIPLE VOICE IDs\n";
-					}
+					cnt_talks = txt.Talks().size();
 				}
-
-				ofstream ofs(dir_out + fn);
-				ofs << ss_new.str();
-				ofs.close();
-
-				ofs_rep << name << ": Total Dialogs: " << txt.Talks().size() << ", Input Voice IDs: " << cnt << "\n";
-				if (!ss_err.str().empty()) {
-					ofs_rep << ss_err.str();
-					has_err = true;
-				}
-				ofs_rep << '\n';
 			}
+
+			ofstream ofs(dir_out + fn);
+			ofs << ss_new.str();
+			ofs.close();
+
+			if (!simple_mode) {
+				ofs_rep << name << ": Total Dialogs: " << cnt_talks << ", Input Voice IDs: " << cnt << "\n";
+			}
+			else {
+				ofs_rep << name << ": Input Voice IDs: " << cnt << "\n";
+			}
+			if (!ss_err.str().empty()) {
+				ofs_rep << ss_err.str();
+				has_err = true;
+			}
+			ofs_rep << '\n';
 		}
 
 		std::cout << endl;
