@@ -1,13 +1,14 @@
 import os, sys
-import codecs
 import struct
 
 CODE_PAGE = 'gbk'
+CODE_PAGE_OUT = 'utf-8'
+
 def set_code_page(code_page):
     global CODE_PAGE
     CODE_PAGE = code_page
 
-def decode(bytes):
+def decode_str(bytes):
     str = bytes.decode(CODE_PAGE)
     ret = ''
     for c in str:
@@ -34,7 +35,7 @@ def main():
         dir_out = '.'
     file_name = os.path.split(path)[-1]
     name, ext = os.path.splitext(file_name)
-    txt_name = name + '.txt'
+    txt_name = name.rstrip(' ') + '.txt'
 
     fs = open(path, 'rb')
     buff = fs.read()
@@ -48,7 +49,7 @@ def main():
 
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
-    fs_out = codecs.open(os.path.join(dir_out, txt_name), 'w', CODE_PAGE)
+    fs_out = open(os.path.join(dir_out, txt_name), mode='w', encoding=CODE_PAGE_OUT)
     fs_out.write('%s\n' % file_name)
 
     for off in offs:
@@ -62,7 +63,7 @@ def main():
             end = begin
             while buff[end] != 0:
                 end += 1
-            fs_out.write('%s\n' % decode(buff[begin:end]))
+            fs_out.write('%s\n' % decode_str(buff[begin:end]))
 
     fs_out.close()
 

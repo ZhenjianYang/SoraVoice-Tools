@@ -1,13 +1,14 @@
 import os, sys
-import codecs
 import struct
 
 CODE_PAGE = 'gbk'
+CODE_PAGE_IN = 'utf-8'
+
 def set_code_page(code_page):
     global CODE_PAGE
     CODE_PAGE = code_page
 
-def encode(str):
+def encode_str(str):
     bytes = bytearray()
     i = 0
     while i < len(str):
@@ -37,7 +38,7 @@ def main():
         dir_out = '.'
     file_name = os.path.split(path)[-1]
 
-    fs = codecs.open(path, 'r', CODE_PAGE)
+    fs = open(path, mode='r', encoding=CODE_PAGE_IN)
     lines = fs.readlines()
     fs.close()
 
@@ -45,7 +46,7 @@ def main():
     groups = [[]]
     for line in lines:
         line = line.rstrip('\n').rstrip('\r')
-        if len(line) == 0 or line[0] == ';' or line[0] == '#':
+        if len(line) == 0 or line[0] == ';':
             continue
         if out_name == None:
             out_name = line
@@ -56,7 +57,7 @@ def main():
         if len(groups[-1]) <= 1:
             groups[-1].append(int(line))
         else:
-            groups[-1].append(encode(line))
+            groups[-1].append(encode_str(line))
 
     if len(groups) == 0:
         print('No groups, skip.')
