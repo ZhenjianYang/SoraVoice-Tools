@@ -12,7 +12,7 @@
     <Name>SoraPy</Name>
     <RootNamespace>SoraPy</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--cp=ms932 T_QUIZ01.TXT</CommandLineArguments>
+    <CommandLineArguments>T_QUIZ01.txt</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
