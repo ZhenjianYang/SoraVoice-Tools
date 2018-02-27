@@ -39,7 +39,7 @@ static inline void printUsage() {
 		"    Switches:"
 		"        m : Enable voice id mapping\n"
 		"        s : Simple mode\n"
-		"        v : Warnning if voiceID not inputed"
+		"        w : Pause if Warnning exists"
 		"        l : Add voice length for op#A and op#5\n"
 //		"        L : Add voice length for all voices\n"
 		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
@@ -317,7 +317,8 @@ int main(int argc, char* argv[]) {
 	bool enable_mapping = switches.find('m') != switches.end();
 	bool vlenA5 = switches.find('l') != switches.end();
 	bool vlenAll = false; //switches.find('L') != switches.end();
-	bool warnv = switches.find('v') != switches.end();
+	//bool warnv = switches.find('v') != switches.end();
+	bool pause_warning = switches.find('w') != switches.end();
 	bool simple_mode = switches.find('s') != switches.end();
 
 	if (vlenA5 || vlenAll) {
@@ -346,6 +347,7 @@ int main(int argc, char* argv[]) {
 
 	auto fn1s = Utils::SearchFiles(dir1 + "*" + ATTR_TXT);
 	bool has_err = false;
+	bool need_pasue = false;
 	for (const auto &fn : fn1s) {
 		const string name = fn.substr(0, fn.find('.'));
 
@@ -406,6 +408,8 @@ int main(int argc, char* argv[]) {
 				lt = LineType::Empty;
 				if (std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
 					ss_err << "    [Warnning]TXT1, line " << line_no << ", NOT MATCHED DIALOG\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 			}
 
@@ -424,6 +428,8 @@ int main(int argc, char* argv[]) {
 
 					if (GetType(s2) == Talk::InvalidTalk && !IsEmptyLine(s2)) {
 						ss_err << "    [Warnning]TXT1, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
+
+						need_pasue = need_pasue || pause_warning;
 					}
 
 					lst_vid.clear();
@@ -432,6 +438,7 @@ int main(int argc, char* argv[]) {
 			if (lt == LineType::None && type == Talk::InvalidTalk) {
 				ss_err.str("");
 				ss_err << "    [Error]TXT1, line " << line_no << ", BAD START\n";
+				need_pasue = true;
 				ss_new.str("");
 				break;
 			}
@@ -443,6 +450,8 @@ int main(int argc, char* argv[]) {
 
 					if (!IsEmptyLine(s2) && GetChrID(s2) == Talk::InvalidChrId) {
 						ss_err << "    [Warnning]TXT1, line " << line_no << ", CHRID LINE NOT MATCHED\n";
+
+						need_pasue = need_pasue || pause_warning;
 					}
 				}
 				chrId_got = true;
@@ -451,6 +460,8 @@ int main(int argc, char* argv[]) {
 			if (lt == LineType::None && !name_got) {
 				if (GetChrID(s2) != Talk::InvalidChrId) {
 					ss_err << "    [Warnning]TXT1, line " << line_no << ", NAME LINE NOT MATCHED\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 
 				lt = LineType::Name;
@@ -458,30 +469,40 @@ int main(int argc, char* argv[]) {
 			}
 
 			if (lt != LineType::None) {
-				if (!IsEmptyLine(s2) && (lt != LineType::Empty || warnv))
+				if (!IsEmptyLine(s2) && (lt != LineType::Empty))
 				{
 					auto vid_rst = GetVoiceId(s2);
 					const auto& vids = vid_rst.second;
 					if (!vids.empty() && !std::equal(TOut::NOT_MATCHED_DIALOG.cbegin(), TOut::NOT_MATCHED_DIALOG.cend(), s.c_str())) {
 						ss_err << "    [Warnning]TXT2, line " << line_no << ", VOICE ID NOT INPUT\n";
+
+						need_pasue = need_pasue || pause_warning;
 					}
 				}
 			}
 			else {
 				if (GetChrID(s2) != Talk::InvalidChrId) {
 					ss_err << "    [Warnning]TXT2, line " << line_no << ",  CHRID LINE NOT MATCHED\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 				if (GetType(s2) != Talk::InvalidTalk) {
 					ss_err << "    [Warnning]TXT2, line " << line_no << ", DIALOG START LINE NOT MATCHED\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 
 				auto vid_rst = GetVoiceId(s2);
 				const auto& vids = vid_rst.second;
 				if(vid_rst.first) {
 					ss_err << "    [Warnning]TXT2, line " << line_no << ", VOICE ID IN MIDDLE\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 				if (vids.size() > 1) {
 					ss_err << "    [Warnning]TXT2, line " << line_no << ", MULTIPLE VOICE IDs\n";
+
+					need_pasue = need_pasue || pause_warning;
 				}
 
 				if (!vids.empty()) {
@@ -526,6 +547,7 @@ int main(int argc, char* argv[]) {
 
 		if (ss_new.str().empty() && !ss_err.str().empty()) {
 			ofs_rep << name << ":Error Exist:\n" << ss_err.str() << '\n';
+			need_pasue = true;
 			has_err = true;
 		}
 		else {
@@ -534,6 +556,7 @@ int main(int argc, char* argv[]) {
 				Txt txt(ss_new);
 				if (!txt.ErrMsg().empty()) {
 					ofs_rep << name << ":Error Exist:\n" << txt.ErrMsg() << "\n\n";
+					need_pasue = true;
 					has_err = true;
 
 					continue;
@@ -548,6 +571,7 @@ int main(int argc, char* argv[]) {
 						}
 						if (cntv > 1) {
 							ss_err << "    [Warnning]Talk #" << dlg->Parent().No() << ", Dlg #" << dlg->No() << ", MULTIPLE VOICE IDs\n";
+							need_pasue = need_pasue || pause_warning;
 						}
 					}
 					cnt_talks = txt.Talks().size();
@@ -580,7 +604,9 @@ int main(int argc, char* argv[]) {
 	}
 	if (has_err) {
 		cout << "Warnnings/Errors found, check " << prep << " for details" << endl;
-		system("pause");
+		
+		
+		if(need_pasue) system("pause");
 	}
 
 	return 0;
