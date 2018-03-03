@@ -13,8 +13,8 @@ static inline void printUsage() {
 		"\n"
 		"  SoraMoveFuns idx1 py1 idx2 py2 scp_fun_1 [scp_fun_2 ...]\n"
 		"    scp_fun >= 0 : move scp_fun from py1 to py2 (mode 1)\n"
-		"    scp_fun <= -0 : move -scp_fun from py1 to py2 (mode 2)\n"
-		"    NOTE: 0 != -0\n"
+		//"    scp_fun <= -0 : move -scp_fun from py1 to py2 (mode 2)\n"
+		//"    NOTE: 0 != -0\n"
 		<< endl;
 }
 
