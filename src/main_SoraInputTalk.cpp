@@ -34,6 +34,8 @@ static inline void printUsage() {
 		"    Switches:\n"
 		"        c : Add comments to output\n"
 		"        v : remove voice commands\n"
+		"        d : waring for small dialogues\n"
+		"        w : pause for waring\n"
 		"    Possible values of format:\n"
 		"        s : ._SN.txt\n"
 		"        p : .py\n"
@@ -62,6 +64,23 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	case 't':return make_unique<Sora::Txt>(fileName);
 	default: return nullptr;
 	}
+}
+
+static std::string GetTextWithoutOp(const std::string& s) {
+	size_t i = 0;
+	while (i < s.length()) {
+		if (s[i] == '#') {
+			i++;
+			while (s[i] >= '0' && s[i] <= '9') i++;
+			if (s[i] >= 'a' && s[i] <= 'z' || s[i] >= 'A' && s[i] <= 'Z') {
+				i++;
+			}
+		}
+		else {
+			break;
+		}
+	}
+	return s.substr(i);
 }
 
 static void RemoveOp(std::string& s, char op) {
@@ -96,6 +115,8 @@ int main(int argc, char* argv[]) {
 	}
 	bool with_cmt = switches.find('c') != switches.end();
 	bool remove_vc = switches.find('v') != switches.end();
+	bool pwarn = switches.find('w') != switches.end();
+	bool small_dialogue = switches.find('d') != switches.end();
 
 	ERROR_EXIST(params.size() < 3);
 	string fmts = params[0];
@@ -118,6 +139,7 @@ int main(int argc, char* argv[]) {
 
 	auto fn_ins = Utils::SearchFiles(dir_in + "*" + ext);
 	bool has_err = false;
+	bool has_worn = false;
 	for (const auto &fn_in : fn_ins) {
 		const string name = fn_in.substr(0, fn_in.find('.'));
 
@@ -139,8 +161,10 @@ int main(int argc, char* argv[]) {
 		const string fn_txt = name + ATTR_TXT;
 		auto ptf_txt = !dir_txt.empty() ? getTalksFile(dir_txt + fn_txt, 't') : std::make_unique<TalksFile>();
 		if (!ptf_txt->ErrMsg().empty()) {
-			if(ptf_txt->ErrMsg() != "Open file failed.")
+			if (ptf_txt->ErrMsg() != "Open file failed.") {
 				ss_err << "    [Error]Txt file: " << ptf_txt->ErrMsg() << '\n';
+				has_err = true;
+			}
 			else {
 				cout << "Txt file not exists.";
 			}
@@ -155,6 +179,7 @@ int main(int argc, char* argv[]) {
 
 			if (i >= (int)tf.Talks().size()) {
 				ss_err << "    [NotInput]: #" << talk.No() << '\n';
+				has_worn = true;
 				cnt_npt++;
 				continue;
 			}
@@ -162,9 +187,11 @@ int main(int argc, char* argv[]) {
 			auto& talk_ori = tf.Talks()[i];
 			if (talk_ori.GetType() != talk.GetType()) {
 				ss_err << "    [Warnning]: #" << talk.No() << ", Type Not Same.\n";
+				has_worn = true;
 			}
 			if (talk_ori.ChrId() != talk.ChrId()) {
 				ss_err << "    [Warnning]: #" << talk.No() << ", ChrId Not Same.\n";
+				has_worn = true;
 			}
 
 			talk_ori = std::move(talk);
@@ -183,6 +210,27 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		if (small_dialogue) {
+			for (auto &talk : tf.Talks()) {
+				if (talk.GetType() != Talk::Type::AnonymousTalk) {
+					continue;
+				}
+
+				int max_len = 0;
+				for (auto &dlg : talk.Dialogs()) {
+					for (auto &line : dlg.Lines()) {
+						auto s = GetTextWithoutOp(line.text);
+						max_len = max(max_len, (int)s.length());
+					}
+				}
+
+				if (max_len <= 6) {
+					ss_err << "    [Warnning]: #" << talk.No() << ", Small Dialogue\n";
+					has_worn = true;
+				}
+			}
+		}
+
 		ofstream ofs_out(dir_out + fn_in);
 		tf.WriteTo(ofs_out, with_cmt);
 		ofs_out.close();
@@ -193,15 +241,14 @@ int main(int argc, char* argv[]) {
 
 		if (!ss_err.str().empty()) {
 			ofs_rep << ss_err.str();
-			has_err = true;
 		}
 		ofs_rep << '\n';
 	}
 
 	ofs_rep.close();
-	if (has_err) {
+	if (has_err || has_worn) {
 		cout << "Warnnings/Errors found, check " << prep << " for details" << endl;
-		system("pause");
+		if(has_err || has_worn && pwarn) system("pause");
 	}
 
 	return 0;
