@@ -35,6 +35,7 @@ static inline void printUsage() {
 		"        c : Add comments to output\n"
 		"        v : remove voice commands\n"
 		"        d : waring for small dialogues\n"
+		"        a : waring for auto dialogues\n"
 		"        w : pause for waring\n"
 		"    Possible values of format:\n"
 		"        s : ._SN.txt\n"
@@ -117,6 +118,7 @@ int main(int argc, char* argv[]) {
 	bool remove_vc = switches.find('v') != switches.end();
 	bool pwarn = switches.find('w') != switches.end();
 	bool small_dialogue = switches.find('d') != switches.end();
+	bool auto_dialogue = switches.find('a') != switches.end();
 
 	ERROR_EXIST(params.size() < 3);
 	string fmts = params[0];
@@ -227,6 +229,27 @@ int main(int argc, char* argv[]) {
 				if (max_len <= 6) {
 					ss_err << "    [Warnning]: #" << talk.No() << ", Small Dialogue\n";
 					has_worn = true;
+				}
+			}
+		}
+
+		if (auto_dialogue) {
+			for (auto &talk : tf.Talks()) {
+				int pre = -1;
+				for (auto &dlg : talk.Dialogs()) {
+					int cur = 0;
+					for (auto& op : dlg.Ops()) {
+						if (op.op == 'A') {
+							cur = 1;
+							break;
+						}
+					}
+					if (cur + pre == 1) {
+						ss_err << "    [Warnning]: #" << talk.No() << ", Auto Commands Not Match\n";
+						has_worn = true;
+						break;
+					}
+					pre = cur;
 				}
 			}
 		}
