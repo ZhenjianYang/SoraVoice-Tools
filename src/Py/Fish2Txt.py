@@ -34,7 +34,7 @@ def main():
     name, ext = os.path.splitext(file_name)
     txt_name = name.rstrip(' ') + '.txt'
 
-    file_out = os.path.dirname(file_in) + txt_name
+    file_out = os.path.join(os.path.dirname(file_in), txt_name)
 
     fs = open(file_in, 'rb')
     fs.seek(8)
