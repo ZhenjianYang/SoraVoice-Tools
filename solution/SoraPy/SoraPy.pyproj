@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>7c513811-02ae-4cf5-8d01-9d7260076282</ProjectGuid>
     <ProjectHome>..\..\src\Py</ProjectHome>
-    <StartupFile>Txt2Quiz.py</StartupFile>
+    <StartupFile>Fish2Txt.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>..\..\bin\Py</WorkingDirectory>
@@ -12,7 +12,7 @@
     <Name>SoraPy</Name>
     <RootNamespace>SoraPy</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>T_QUIZ01.txt</CommandLineArguments>
+    <CommandLineArguments>--cp=932 "T_FISH  ._DT"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
@@ -25,7 +25,16 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ExportStr.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Fish2Txt.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Quiz2Txt.py" />
+    <Compile Include="Txt2Fish.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Txt2Quiz.py">
       <SubType>Code</SubType>
     </Compile>
