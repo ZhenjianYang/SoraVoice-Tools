@@ -27,9 +27,13 @@
 #define VPATH "vpath.txt"
 
 static constexpr int MAXCH_ONELINE = 10000;
+static constexpr int MIN_VOICEID_LEN_NEEDFIX = 8;
+static constexpr char STR_ZEROS[] = "0000000000";
 
 using namespace std;
 using namespace Sora;
+
+static bool FixVoiceIdLen = true;
 
 static inline void printUsage() {
 	std::cout << "Usage:\n"
@@ -102,6 +106,11 @@ static auto GetVoiceId(const string& str) {
 		string tmp;
 		while (str[i] >= '0' && str[i] <= '9') tmp.push_back(str[i++]);
 		if (str[i] == 'V' || str[i] == 'v') {
+			if (FixVoiceIdLen && tmp.length() >= MIN_VOICEID_LEN_NEEDFIX && tmp.length() <= MAX_VOICEID_LEN) {
+				constexpr int NUM_ZERO = std::extent<decltype(STR_ZEROS)>::value - 1;
+				static_assert(NUM_ZERO >= MAX_VOICEID_LEN, "NUM_ZERO < MAX_VOICEID_LEN!!!");
+				tmp = STR_ZEROS + (NUM_ZERO - MAX_VOICEID_LEN + tmp.length()) + tmp;
+			}
 			rst.second.push_back(tmp);
 			if(text) {
 				rst.first = true;
@@ -320,6 +329,7 @@ int main(int argc, char* argv[]) {
 	//bool warnv = switches.find('v') != switches.end();
 	bool pause_warning = switches.find('w') != switches.end();
 	bool simple_mode = switches.find('s') != switches.end();
+	FixVoiceIdLen = switches.find('f') == switches.end();
 
 	if (vlenA5 || vlenAll) {
 		if (!InitOgg()) {
