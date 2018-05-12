@@ -19,6 +19,7 @@ namespace Sora {
 	struct Line {
 		std::string text;
 		std::string cmt;
+		std::string ptext;
 	};
 	class Talk;
 	class Dialog {
@@ -179,6 +180,9 @@ namespace Sora {
 
 				if (op.op) {
 					dialogs.back().ops.push_back(op);
+				}
+				else {
+					for (int j = 0; j < bytes; j++) dialogs.back().lines.back().ptext.push_back(p[i + j]);
 				}
 				for(; bytes > 0;bytes --) dialogs.back().lines.back().text.push_back(p[i++]);
 			}

@@ -67,23 +67,6 @@ static inline unique_ptr<TalksFile> getTalksFile(const std::string& fileName, ch
 	}
 }
 
-static std::string GetTextWithoutOp(const std::string& s) {
-	size_t i = 0;
-	while (i < s.length()) {
-		if (s[i] == '#') {
-			i++;
-			while (s[i] >= '0' && s[i] <= '9') i++;
-			if (s[i] >= 'a' && s[i] <= 'z' || s[i] >= 'A' && s[i] <= 'Z') {
-				i++;
-			}
-		}
-		else {
-			break;
-		}
-	}
-	return s.substr(i);
-}
-
 static void RemoveOp(std::string& s, char op) {
 	size_t i = 0;
 	size_t idx = 0;
@@ -221,13 +204,13 @@ int main(int argc, char* argv[]) {
 				int max_len = 0;
 				for (auto &dlg : talk.Dialogs()) {
 					for (auto &line : dlg.Lines()) {
-						auto s = GetTextWithoutOp(line.text);
+						auto& s = line.ptext;
 						max_len = max(max_len, (int)s.length());
 					}
 				}
 
-				if (max_len <= 6) {
-					ss_err << "    [Warnning]: #" << talk.No() << ", Small Dialogue\n";
+				if (max_len < 9) {
+					ss_err << "    [Warnning]: #" << talk.No() << ", Small Dialogue, Len=" << max_len << "\n";
 					has_worn = true;
 				}
 			}
