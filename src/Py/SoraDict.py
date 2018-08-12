@@ -19,6 +19,8 @@ DICT_MARK = 'xf'
 
 log = print
 
+RAW_STRING_MODE=False
+
 def getSubFiles(dir, ext = '.py'):
     ret = []
     dir_list =  os.listdir(dir)
@@ -107,17 +109,21 @@ def restorteDict(path_in, path_out, dicts):
     with codecs.open(path_out, 'w', CODEPAGE_PY) as file_out:
         for line in lines:
             newLine = ''
-            i, ip = 0, 0
-            while i < len(line):
-                if line[i] in '\'"':
-                    j = line.find(line[i], i + 1)
-                    newLine += line[ip:i+1]
-                    newLine += formatWithDict(line[i+1:j], dicts)
-                    ip = j
-                    i = j + 1
-                else:
-                    i += 1
-            newLine += line[ip:]
+            
+            if RAW_STRING_MODE:
+                newLine = formatWithDict(line, dicts)
+            else:
+                i, ip = 0, 0
+                while i < len(line):
+                    if line[i] in '\'"':
+                        j = line.find(line[i], i + 1)
+                        newLine += line[ip:i+1]
+                        newLine += formatWithDict(line[i+1:j], dicts)
+                        ip = j
+                        i = j + 1
+                    else:
+                        i += 1
+                newLine += line[ip:]
             file_out.write(newLine)
 
 def main():
@@ -132,28 +138,30 @@ def main():
             params.append(sys.argv[i])
     if len(params) < 2:
         print('Usage:')
-        print('    %s dir_in dir_dict [dir_out]' % sys.argv[0])
+        print('    %s [--cp=<codepage>] [--cpen=<codepage>] [--rs] dir_in dir_dict [dir_out]' % sys.argv[0])
         return
     
     dir_in = params[0]
     dir_dict = params[1]
     dir_out = params[2] if len(params) > 2 else dir_in + '.out'
 
-    global CODEPAGE_TXT, CODEPAGE_TXT_EN
+    global CODEPAGE_TXT, CODEPAGE_TXT_EN, RAW_STRING_MODE
     if 'cp' in switches:
         cp = switches['cp']
         CODEPAGE_TXT = cp
     if 'cpen' in switches:
         cp = switches['cpen']
         CODEPAGE_TXT_EN = cp
+    if 'rs' in switches:
+        RAW_STRING_MODE = True
 
     log('Reading Dict files...')
     dicts = getDicts(dir_dict)
 
-    log('Now going to deal with pys...')
+    log('Now going to deal with files...')
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
-    pys = getSubFiles(dir_in, '.py')
+    pys = getSubFiles(dir_in, '.py') + getSubFiles(dir_in, '.txt')
     log('%d files.' % len(pys))
     for py in pys:
         log('Working with %s...' % py, end='', flush=True)
