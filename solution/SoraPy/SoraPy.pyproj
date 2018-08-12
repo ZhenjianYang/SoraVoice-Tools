@@ -32,6 +32,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Quiz2Txt.py" />
+    <Compile Include="SoraDict.py" />
     <Compile Include="Txt2Fish.py">
       <SubType>Code</SubType>
     </Compile>
