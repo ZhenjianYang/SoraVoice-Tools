@@ -44,6 +44,7 @@ static inline void printUsage() {
 		"        m : Enable voice id mapping\n"
 		"        s : Simple mode\n"
 		"        w : Pause if Warnning exists"
+		"        v : Remove txt1's voice id"
 		"        l : Add voice length for op#A and op#5\n"
 //		"        L : Add voice length for all voices\n"
 		"            NOTE: Should add paths of voice folders to '" VPATH "'\n"
@@ -105,7 +106,7 @@ static auto GetVoiceId(const string& str) {
 		if (str[i] == '#') break;
 		string tmp;
 		while (str[i] >= '0' && str[i] <= '9') tmp.push_back(str[i++]);
-		if (str[i] == 'V' || str[i] == 'v') {
+		if (!tmp.empty() && (str[i] == 'V' || str[i] == 'v')) {
 			if (FixVoiceIdLen && tmp.length() >= MIN_VOICEID_LEN_NEEDFIX && tmp.length() <= MAX_VOICEID_LEN) {
 				constexpr int NUM_ZERO = std::extent<decltype(STR_ZEROS)>::value - 1;
 				static_assert(NUM_ZERO >= MAX_VOICEID_LEN, "NUM_ZERO < MAX_VOICEID_LEN!!!");
@@ -310,6 +311,24 @@ static inline bool HasOpA5(const string& str) {
 	return false;
 }
 
+static void RemoveOp(std::string& s, char op) {
+	size_t i = 0;
+	size_t idx = 0;
+	while (i < s.length()) {
+		if (s[i] == '#') {
+			auto j = i + 1;
+			while (s[j] >= '0' && s[j] <= '9') j++;
+			if (s[j] == op) {
+				i = j + 1;
+				continue;
+			}
+		}
+
+		s[idx++] = s[i++];
+	}
+	s.resize(idx);
+}
+
 int main(int argc, char* argv[]) {
 	unordered_set<char> switches;
 	vector<string> params;
@@ -329,6 +348,7 @@ int main(int argc, char* argv[]) {
 	//bool warnv = switches.find('v') != switches.end();
 	bool pause_warning = switches.find('w') != switches.end();
 	bool simple_mode = switches.find('s') != switches.end();
+	bool remove_vid = switches.find('v') != switches.end();
 	FixVoiceIdLen = switches.find('f') == switches.end();
 
 	if (vlenA5 || vlenAll) {
@@ -392,6 +412,11 @@ int main(int argc, char* argv[]) {
 			if (if2.getline(buf2, sizeof(buf2))) {
 				if (line_no == 0 && buf2[0] == '\xEF' && buf2[1] == '\xBB' && buf2[2] == '\xBF') s2 = buf2 + 3;
 				else s2 = buf2;
+			}
+
+			if (remove_vid) {
+				RemoveOp(s, 'v');
+				RemoveOp(s, 'V');
 			}
 
 			if (simple_mode) {
