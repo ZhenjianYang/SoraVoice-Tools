@@ -73,6 +73,7 @@ namespace Sora {
 		};
 		using DialogsT = std::vector<Dialog>;
 		static constexpr int InvalidChrId = 0x80000000;
+		static constexpr const char InvalidName[] = "__NO_NAME__";
 
 		int No() const { return no; }
 		Type GetType() const { return type; }
@@ -93,7 +94,7 @@ namespace Sora {
 
 	public:
 		Talk(int no, Type type, int chrId = InvalidChrId)
-			: no(no), type(type), chrId(chrId),
+			: no(no), type(type), chrId(chrId), name(InvalidName),
 			dialogs({ Dialog{*this, 0, Dialog::LinesT{ Line{ } } } }) {
 		}
 

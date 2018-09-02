@@ -133,11 +133,11 @@ void Sora::Snt::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	using byte = unsigned char;
 	char buff[12];
 	os << Snt::Str_Talks[talk.GetType()] << '\n';
-	if (talk.GetType() != Talk::AnonymousTalk) {
+	if (talk.ChrId() != Talk::InvalidChrId) {
 		std::sprintf(buff, "[%02X %02X]", (byte)(talk.ChrId() & 0xFF), (byte)((talk.ChrId() >> 8) & 0xFF));
 		os << buff << '\n';
 	}
-	if (talk.GetType() == Talk::NpcTalk) {
+	if (talk.Name() != Talk::InvalidName) {
 		os << "\t\t\t\t'" << talk.Name() << "\"\n";
 	}
 	os << "'";

@@ -96,7 +96,7 @@ void Sora::Txt::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 		<< std::dec << talk.No() << '\n';
 
 	if (talk.ChrId() != Talk::InvalidChrId) os << "0x" << std::hex << std::uppercase << talk.ChrId() << '\n';
-	if (talk.GetType() == Talk::NpcTalk) os << talk.Name() << '\n';
+	if (talk.Name() != Talk::InvalidName) os << talk.Name() << '\n';
 
 	for (const auto& dlg : talk.Dialogs()) {
 		os << '\n';

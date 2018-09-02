@@ -91,10 +91,10 @@ void Sora::Py::OutputTalk(std::ostream& os, const Talk& talk, bool with_cmt) {
 	}
 	os << '\n';
 
-	if (talk.GetType() != Talk::AnonymousTalk) {
+	if (talk.ChrId() != Talk::InvalidChrId) {
 		os << SPACE SPACE << "0x" << hex << uppercase << talk.ChrId() << ",\n";
 	}
-	if (talk.GetType() == Talk::NpcTalk) {
+	if (talk.Name() != Talk::InvalidName) {
 		os << SPACE SPACE DQOUT <<  talk.Name() << DQOUT ",\n";
 	}
 
