@@ -18,25 +18,36 @@ namespace Sora {
 		using JudgeVT = int;
 		class JudgeOPT {
 		public:
-			JudgeVT operator()(const OP& a, const OP& b) const {
-				if (a.op != b.op) {
+			JudgeVT operator()(const OP& opa, const OP& opb) const {
+				if ((opa.op == 'v' || opa.op == 'V') && !(opb.op == 'v' || opb.op == 'V')
+					|| !(opa.op == 'v' || opa.op == 'V') && (opb.op == 'v' || opb.op == 'V')) {
+					return -10000;
+				} else if ((opa.op == 'v' || opa.op == 'V') && (opb.op == 'v' || opb.op == 'V')){
+					if (opa.oprnd == opb.oprnd) {
+						return 10000;
+					}
+					else {
+						return -20000;
+					}
+				}
+				else if (opa.op != opb.op) {
 					return -50;
 				}
 				else {
-					switch (a.op)
+					switch (opa.op)
 					{
 					case 'F':
-						return a.oprnd == b.oprnd ? 15 : -15;
+						return opa.oprnd == opb.oprnd ? 15 : -15;
 					case OP::SCPSTR_CODE_ENTER:
 						return 10;
 					case OP::SCPSTR_CODE_CLEAR:
 						return 15;
 					case OP::SCPSTR_CODE_COLOR:
-						return a.oprnd == b.oprnd ? 20 : -20;
+						return opa.oprnd == opb.oprnd ? 20 : -20;
 					case 'W':case 'A':
-						return a.oprnd == b.oprnd ? 8 : 4;
+						return opa.oprnd == opb.oprnd ? 8 : 4;
 					default:
-						return a.oprnd == b.oprnd ? 5 : 0;
+						return opa.oprnd == opb.oprnd ? 5 : 0;
 					}
 				}
 			}
