@@ -14,6 +14,8 @@
 #include <Sora/Encode.h>
 #include <Utils/Files.h>
 
+#include "mapping.h"
+
 #include <conio.h>
 
 #define ATTR_SNT "._SN.txt"
@@ -34,6 +36,7 @@ static inline void printUsage() {
 		"    Switches:\n"
 		"        c : Add comments to output\n"
 		"        v : remove voice commands\n"
+		"        V : restroe voice id\n"
 		"        d : waring for small dialogues\n"
 		"        a : waring for auto dialogues\n"
 		"        w : pause for waring\n"
@@ -85,6 +88,46 @@ static void RemoveOp(std::string& s, char op) {
 	s.resize(idx);
 }
 
+static string VidMap(const std::string& s) {
+	if (s.length() > MAX_VOICEID_LEN_NEED_MAPPING) {
+		return s;
+	}
+	
+	char* endp;
+	int num_vid = std::strtol(s.c_str(), &endp, 10);
+
+	num_vid += VoiceIdAdjustAdder[s.length()];
+	if (num_vid >= NUM_MAPPING) {
+		return s;
+	}
+
+	return VoiceIdMapping[num_vid][0] ? VoiceIdMapping[num_vid] : s;
+}
+
+static void RestoreVop(std::string& s) {
+	string t;
+	size_t i = 0;
+	while (i < s.length()) {
+		if (s[i] == '#') {
+			auto j = i + 1;
+			while (s[j] >= '0' && s[j] <= '9') j++;
+			if (s[j] == 'v' || s[j] == 'V') {
+				t.push_back('#');
+				t.append(VidMap(s.substr(i + 1, j - i - 1)));
+				t.push_back(s[j]);
+			}
+			else {
+				t.append(s.substr(i, j - i + 1));
+			}
+			i = j + 1;
+		}
+		else {
+			t.push_back(s[i++]);
+		}
+	}
+	s = std::move(t);
+}
+
 int main(int argc, char* argv[]) {
 	unordered_set<char> switches;
 	vector<string> params;
@@ -102,6 +145,7 @@ int main(int argc, char* argv[]) {
 	bool pwarn = switches.find('w') != switches.end();
 	bool small_dialogue = switches.find('d') != switches.end();
 	bool auto_dialogue = switches.find('a') != switches.end();
+	bool rst_vc = switches.find('V') != switches.end();
 
 	ERROR_EXIST(params.size() < 3);
 	string fmts = params[0];
@@ -190,6 +234,15 @@ int main(int argc, char* argv[]) {
 					for (auto &line : dlg.Lines()) {
 						RemoveOp(line.text, 'V');
 						RemoveOp(line.text, 'v');
+					}
+				}
+			}
+		}
+		else if (rst_vc) {
+			for (auto &talk : tf.Talks()) {
+				for (auto &dlg : talk.Dialogs()) {
+					for (auto &line : dlg.Lines()) {
+						RestoreVop(line.text);
 					}
 				}
 			}
