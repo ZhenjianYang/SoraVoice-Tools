@@ -14,7 +14,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{91EF6E05-3840-499B-9214-8D21BB7F3C7B}</ProjectGuid>
     <RootNamespace>ZA_FIX_PY</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

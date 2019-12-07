@@ -21,7 +21,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{25B282BA-F9FA-43F2-8AA3-C8374B0C65B8}</ProjectGuid>
     <RootNamespace>SoraMoveFuns</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

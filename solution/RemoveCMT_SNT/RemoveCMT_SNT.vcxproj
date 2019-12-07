@@ -14,7 +14,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B8CF0EBF-2E0E-4A69-9144-9525641A07D7}</ProjectGuid>
     <RootNamespace>RemoveCMT_SNT</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -14,7 +14,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{51F14935-7DAD-4C40-8DEB-997134795CCD}</ProjectGuid>
     <RootNamespace>SoraInputVoiceId</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
